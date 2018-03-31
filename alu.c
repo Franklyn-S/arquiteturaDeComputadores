@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
 
 int main()
 {
@@ -16,6 +18,18 @@ int main()
 
     while(1){
 		//aqui roda o programa principal
+	}
+
+	void gravar_registrador(word ender){
+		if(ender & 1) mar = bC;//0 0000 0001
+		if(ender & 2) mdr = bC;//0 0000 0010
+		if(ender & 4) pc = bC;///0 0000 0100
+		if(ender & 8) sp = bC;//0 0000 1000
+		if(ender & 16) lv = bC;//0 0001 0000
+		if(ender & 32) cpp = bC; //(...)
+		if(ender & 64) tos = bC;
+		if(ender & 128) opc = bC;
+		if(ender & 256) h = bC;//1 0000 0000
 	}
     
     void ler_registrador(byte ender){//endereço
@@ -38,7 +52,7 @@ int main()
         }
     }
 
-    void colocaBarramentoC(word operacao){
+    void colocaBarramentoC(byte operacao){
 		
 		bA = h;
 
@@ -62,6 +76,7 @@ int main()
 			case 60: bC = bA + bB;		break;
 			case 61: bC = bA + bB + 1;	break;
 			case 63: bC = bB - bA;		break;
+			default: break;
 		}
 
 		if (bC == 0)
@@ -71,6 +86,15 @@ int main()
 		}else{
 			N = 1;
 			Z = 0;
+		}
+
+		byte desloc = operacao >> 6;
+
+		switch(desloc){
+			case 0:break;
+			case 1: bC = bC >> 1; break;
+			case 2: bC = bC << 8; break;
+			default: bC = (bC << 8) >> 1;
 		}
 	}
 
