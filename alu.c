@@ -104,35 +104,9 @@ int main()
 		{
 			//return next; nao precisa pois não ha caso onde 000
 		}
-		if (jam == 1)
-		{
-			next = next | (Z<<8);
-		}
-		if (jam == 2)
-		{
-			next = next | (N<<8);
-		}
-		if (jam == 3)
-		{
-			/* code */
-		}
-		if (jam == 4)
-		{
-			next = next;
-		}
-		if (jam == 5)
-		{
-			/* code */
-		}
-		if (jam == 6)
-		{
-			/* code */
-		}
-		if (jam == 7)
-		{
-			/* code */
-		}
-
+		if (jam == 1)	next = next | (Z<<8);
+		if (jam == 2)	next = next | (N<<8);
+		if (jam == 4)	next = next | mbr;
 		return next;
 	}
 
