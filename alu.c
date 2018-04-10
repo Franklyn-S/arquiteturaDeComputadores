@@ -2,34 +2,28 @@
 #include <stdlib.h>
 #include <iostream>
 
-int main()
-{
     typedef unsigned int word;
     typedef unsigned char byte;
     typedef unsigned long int microInstrucao;
     
     byte Z , N;
     word mar, mdr, pc, sp, lv, cpp, tos, opc, h, mpc;
-    word bA, bB, bC, bS, bD;//o que seria bS?
+    word bA, bB, bC, bD;
     byte mbr;
     microInstrucao microPrograma[512];
     byte ram[16*1024];
-    byte wr, rd, fetch;  //declara 
-
-    while(1){
-		//aqui roda o programa principal
-	}
+    byte wr, rd, fetch;
 
 	void gravar_registrador(word ender){
-		if(ender & 1) mar = bC;//0 0000 0001
-		if(ender & 2) mdr = bC;//0 0000 0010
-		if(ender & 4) pc = bC;///0 0000 0100
-		if(ender & 8) sp = bC;//0 0000 1000
-		if(ender & 16) lv = bC;//0 0001 0000
-		if(ender & 32) cpp = bC; //(...)
-		if(ender & 64) tos = bC;
-		if(ender & 128) opc = bC;
-		if(ender & 256) h = bC;//1 0000 0000
+		if(ender & 1) mar = bC;		//0 0000 0001
+		if(ender & 2) mdr = bC;		//0 0000 0010
+		if(ender & 4) pc = bC; 		//0 0000 0100
+		if(ender & 8) sp = bC;		//0 0000 1000
+		if(ender & 16) lv = bC;		//0 0001 0000
+		if(ender & 32) cpp = bC; 	//0 0010 0000 
+		if(ender & 64) tos = bC;	//0 0100 0000
+		if(ender & 128) opc = bC;	//0 1000 0000
+		if(ender & 256) h = bC;		//1 0000 0000
 	}
     
     void ler_registrador(byte ender){//endereço
@@ -41,7 +35,8 @@ int main()
             {
                 word sinal = mbr >> 7;
                 bB = (sinal) ? 0xFFFFFF0 : 0;
-                bB = bB|mbr;
+                bB = bB|
+                mbr;
             }
             break;
             case 4: bB = sp; break;
@@ -52,11 +47,12 @@ int main()
         }
     }
 
-    void colocaBarramentoC(byte operacao){
+    void ula(byte operacao){
 		
 		bA = h;
 
-		byte opUla = (operacao << 2)>>2;
+		byte opUla = (operacao << 2) >> 2;
+		byte desloc = operacao >> 6;
 
 		switch(opUla){
 
@@ -79,16 +75,15 @@ int main()
 			default: break;
 		}
 
-		if (bC == 0)
-		{
+		if (bC == 0){
 			N = 0;
 			Z = 1;
-		}else{
+		}
+		else{
 			N = 1;
 			Z = 0;
 		}
 
-		byte desloc = operacao >> 6;
 
 		switch(desloc){
 			case 0:break;
@@ -100,8 +95,7 @@ int main()
 
 	word next_function(word next , int jam){
 
-		if (jam == 0)
-		{
+		if (jam == 0){
 			//return next; nao precisa pois não ha caso onde 000
 		}
 		if (jam == 1)	next = next | (Z<<8);
@@ -109,6 +103,28 @@ int main()
 		if (jam == 4)	next = next | mbr;
 		return next;
 	}
+
+int main()
+{
+    while(1){
+    	// Valores do micro programa
+    	// next_address - 9 | Jam - 3 | Deslocador - 2 | F0 | F1 | En A | En B | Inv A | Inc | H | OPC | TOS | CPP | LV | SP | PC | MDR | MAR | WRITE | READ | FETCH | Barramento B - 4
+		// Barramento B
+		// MDR - 0 | PC - 1 | MBR - 2 | MBRU - 3 | SP - 4 | LV - 5 | CPP - 6 | TOS - 7 | OPC - 8 
+		 
+		microPrograma[0] = 0b000000010 000 00 000000 000000000 000 0000;
+
+		microPrograma[2] = 0b000000011 000 00 111001 000001000 000 0100;
+		microPrograma[3] = 0b000000100 000 00 111001 000001000 000 0100;
+		microPrograma[4] = 0b000000101 000 00 111001 000001000 000 0100;
+		microPrograma[5] = 0b000000110 000 00 111001 000001000 000 0100;
+
+		microPrograma[6] = 0b000000111 000 00 000000 000010000 000 0100;
+		microPrograma[7] = 0b000000110 000 00 000000 000000000 000 0010;
+
+		getchar();
+	}
+
 
 
 return 0;
