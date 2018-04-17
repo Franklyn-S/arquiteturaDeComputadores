@@ -1,33 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#include <iostream>
 
-typedef unsigned int word;
-typedef unsigned char byte;
-typedef unsigned long int microInstrucao;
+typedef unsigned int word;                 //32 bits.
+typedef unsigned char byte;				   //8 bits.
+typedef unsigned long int microInstrucao;  //64 bits.
 
+byte mbr;           //Registrador mbr (especial).
 byte Z , N;
-word mar, mdr, pc, sp, lv, cpp, tos, opc, h, mpc;
-word bA, bB, bC, bD;
-byte mbr;
-microInstrucao microPrograma[512];
-byte ram[16*1024];
+byte ram[16*1024];  //Memória RAM de 16 Bytes.
 byte wr, rd, fetch;
 
-	void gravar_registrador(word ender){
-		if(ender & 1) mar = bC;		//0 0000 0001
-		if(ender & 2) mdr = bC;		//0 0000 0010
-		if(ender & 4) pc = bC; 		//0 0000 0100
-		if(ender & 8) sp = bC;		//0 0000 1000
-		if(ender & 16) lv = bC;		//0 0001 0000
-		if(ender & 32) cpp = bC; 	//0 0010 0000 
-		if(ender & 64) tos = bC;	//0 0100 0000
-		if(ender & 128) opc = bC;	//0 1000 0000
-		if(ender & 256) h = bC;		//1 0000 0000
-	}
+word bA, bB, bC, bD;   							  //Barramentos da ULA.
+word mar, mdr, pc, sp, lv, cpp, tos, opc, h, mpc; //Registradores da ULA.
+
+microInstrucao microPrograma[512];				  //Vetor onde se pode guardar 512 instruções de 64 bits.
+
+//Função que recebe a instrução (32 bits) e detecta qual o registrador no qual será armazenado a informação.
+void gravar_registrador(word ender){
+	if(ender & 1)   mar = bC;	//... 0 0000 0001
+	if(ender & 2)   mdr = bC;	//... 0 0000 0010
+	if(ender & 4)   pc  = bC; 	//... 0 0000 0100
+	if(ender & 8)   sp  = bC;	//... 0 0000 1000
+	if(ender & 16)  lv  = bC;	//... 0 0001 0000
+	if(ender & 32)  cpp = bC; 	//... 0 0010 0000
+	if(ender & 64)  tos = bC;	//... 0 0100 0000
+	if(ender & 128) opc = bC;	//... 0 1000 0000
+	if(ender & 256) h   = bC;	//... 1 0000 0000
+}
+
     
-    void ler_registrador(byte ender){//endereço
+void ler_registrador(byte ender){//endereço
         switch(ender){
             case 0: bB = mdr; 	break;
             case 1: bB = pc; 	break;
@@ -44,8 +47,8 @@ byte wr, rd, fetch;
             case 6: bB = cpp; 	break;
             case 7: bB = tos; 	break;
             case 8: bB = opc; 	break;
-        }
-    }
+       }
+}
 
     void ula(byte operacao){
 		
@@ -135,7 +138,7 @@ int main()
 		gravar_registrador(ender_write);
 		next_function(next, jam);
 
-		getchar();
+		// getchar();
 	}
 
 
