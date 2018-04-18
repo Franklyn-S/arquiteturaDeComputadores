@@ -19,118 +19,179 @@ microInstrucao microPrograma[512];
 byte ram[16*1024];
 byte wr, rd, fetch;
 
-			void decode(word instruction){
-				barramento_read = (instruction << 60) >> 60;
-				op_ula = (instruction << 40) >> 56;
-				barramento_write = (instruction << 48) >> 55;
-				next = (instruction >> 27);
-				jam = (instruction << 37) >> 61;
-			}
+// #define size_word 32
+// int bin[size_word];
 
-		    void ler_registrador(byte ender){//endereço
-		        switch(ender){
-		            case 0: bB = mdr; 	break;
-		            case 1: bB = pc; 	break;
-		            case 2: bB = mbr; 	break;
-		            case 3: //mbru = mbr com extensão de sinal
-		            {
-		                word sinal = mbr >> 7;
-		                bB = (sinal) ? 0xFFFFFF0 : 0;
-		                bB = bB | mbr;
-		            }
-		            					break;
-		            case 4: bB = sp;	break;
-		            case 5: bB = lv;	break;
-		            case 6: bB = cpp; 	break;
-		            case 7: bB = tos; 	break;
-		            case 8: bB = opc; 	break;
-		        }
-		    }
-			
-			void gravar_registrador(word ender){
-				if(ender & 1) mar = bC;		//0 0000 0001
-				if(ender & 2) mdr = bC;		//0 0000 0010
-				if(ender & 4) pc = bC; 		//0 0000 0100
-				if(ender & 8) sp = bC;		//0 0000 1000
-				if(ender & 16) lv = bC;		//0 0001 0000
-				if(ender & 32) cpp = bC; 	//0 0010 0000 
-				if(ender & 64) tos = bC;	//0 0100 0000
-				if(ender & 128) opc = bC;	//0 1000 0000
-				if(ender & 256) h = bC;		//1 0000 0000
-			}
-		    
+void decode(word instruction){
+	barramento_read = (instruction << 60) >> 60;
+	op_ula = (instruction << 40) >> 56;
+	barramento_write = (instruction << 48) >> 55;
+	next = (instruction >> 27);
+	jam = (instruction << 37) >> 61;
+}
 
-		    void ula(byte operacao){
-				
-				bA = h;
+void ler_registrador(byte ender){//endereço
+    switch(ender){
+        case 0: bB = mdr; 	break;
+        case 1: bB = pc; 	break;
+        case 2: bB = mbr; 	break;
+        case 3: //mbru = mbr com extensão de sinal
+        {
+            word sinal = mbr >> 7;
+            bB = (sinal) ? 0xFFFFFF0 : 0;
+            bB = bB | mbr;
+        }
+        					break;
+        case 4: bB = sp;	break;
+        case 5: bB = lv;	break;
+        case 6: bB = cpp; 	break;
+        case 7: bB = tos; 	break;
+        case 8: bB = opc; 	break;
+    }
+}
 
-				byte opUla = (operacao << 2) >> 2;
-				byte desloc = operacao >> 6;
-
-				switch(opUla){
-					case 12: bC = bA & bB;		break;
-					case 16: bC = 0;			break;
-					case 20: bC = bB;			break;
-					case 24: bC = bA;			break;
-					case 26: bC = ~bA;			break;
-					case 28: bC = bA | bB;		break;
-					case 44: bC = ~bB;			break;
-					case 49: bC = 1;			break;
-					case 50: bC = -1;			break;
-					case 53: bC = bB + 1;		break;
-					case 54: bC = bB - 1;		break;
-					case 57: bC = bA + 1;		break;
-					case 59: bC = -bA;			break;
-					case 60: bC = bA + bB;		break;
-					case 61: bC = bA + bB + 1;	break;
-					case 63: bC = bB - bA;		break;
-					default: break;
-				}
-
-				if (bC == 0){
-					N = 0;
-					Z = 1;
-				}
-				else{
-					N = 1;
-					Z = 0;
-				}
+void gravar_registrador(word ender){
+	if(ender & 1) mar = bC;		//0 0000 0001
+	if(ender & 2) mdr = bC;		//0 0000 0010
+	if(ender & 4) pc = bC; 		//0 0000 0100
+	if(ender & 8) sp = bC;		//0 0000 1000
+	if(ender & 16) lv = bC;		//0 0001 0000
+	if(ender & 32) cpp = bC; 	//0 0010 0000 
+	if(ender & 64) tos = bC;	//0 0100 0000
+	if(ender & 128) opc = bC;	//0 1000 0000
+	if(ender & 256) h = bC;		//1 0000 0000
+}
 
 
-				switch(desloc){
-					case 0:					break;
-					case 1: bC = bC >> 1; 	break;
-					case 2: bC = bC << 8; 	break;
-					default: bC = (bC << 8) >> 1;
-				}
-			}
+void ula(byte operacao){
+	
+	bA = h;
 
-			void next_function(word next, int jam){
+	byte opUla = (operacao << 2) >> 2;
+	byte desloc = operacao >> 6;
 
-				if (jam == 0){
-					mpc = next;
-				}
-				// if (jam == 1)	next = next | (Z<<8);
-				// if (jam == 2)	next = next | (N<<8);
-				// if (jam == 4)	next = next | mbr;
-			}
+	switch(opUla){
+		case 12: bC = bA & bB;		break;
+		case 16: bC = 0;			break;
+		case 20: bC = bB;			break;
+		case 24: bC = bA;			break;
+		case 26: bC = ~bA;			break;
+		case 28: bC = bA | bB;		break;
+		case 44: bC = ~bB;			break;
+		case 49: bC = 1;			break;
+		case 50: bC = -1;			break;
+		case 53: bC = bB + 1;		break;
+		case 54: bC = bB - 1;		break;
+		case 57: bC = bA + 1;		break;
+		case 59: bC = -bA;			break;
+		case 60: bC = bA + bB;		break;
+		case 61: bC = bA + bB + 1;	break;
+		case 63: bC = bB - bA;		break;
+		default: break;
+	}
 
-			void debug(){
-				printf("ULA %u\n", op_ula);
+	if (bC == 0){
+		N = 0;
+		Z = 1;
+	}
+	else{
+		N = 1;
+		Z = 0;
+	}
 
-				printf("READ %u\n", barramento_read);
-				printf("WRITE %u\n", barramento_write);
-				
-				printf("Next %u\n", next);
-				printf("JAM %d\n", jam);
-				
-				printf("SP %u\n", sp);
-				printf("H %u\n", h);
-				
-				printf("bA %u\n", bA);
-				printf("bB %u\n", bB);
-				printf("bC %u\n", bC);
-			}
+
+	switch(desloc){
+		case 0:					break;
+		case 1: bC = bC >> 1; 	break;
+		case 2: bC = bC << 8; 	break;
+		default: bC = (bC << 8) >> 1;
+	}
+}
+
+void next_function(word next, int jam){
+
+	if (jam == 0){
+		mpc = next;
+	}
+	// if (jam == 1)	next = next | (Z<<8);
+	// if (jam == 2)	next = next | (N<<8);
+	// if (jam == 4)	next = next | mbr;
+}
+
+// void dec2bin(int decimal){
+//     int aux;
+//     for (aux = size_word-1; aux >= 0; aux--) {
+//         if (decimal % 2 == 0) {
+//             bin[aux] = 0;
+//             decimal = decimal / 2;
+//         }
+//         else {
+//             bin[aux] = 1;
+//             decimal = decimal / 2;
+//         }
+//     }
+// }
+
+
+void debug(){
+	 system("clear");
+
+	printf("ULA %u\n", op_ula);
+
+	printf("READ %u\n", barramento_read);
+	printf("WRITE %u\n", barramento_write);
+	
+	printf("Next %u\n", mpc);
+	printf("JAM %d\n", jam);
+	
+	printf("SP %u\n", sp);
+	printf("H %u\n", h);
+	
+	printf("bA %u\n", bA);
+	printf("bB %u\n", bB);
+	printf("bC %u\n", bC);
+
+    // Registrador SP
+// 	dec2bin(SP);
+//     for (int num = 0; num < size_word; num++) {
+//     	if(num % 8 == 0) printf(" ");
+//         printf("%d", bin[num]);
+//     }
+//     printf("%d", SP);
+
+//     printf("\n");
+
+//     // Barramento A
+// 	dec2bin(bA);
+//     for (int num = 0; num < size_word; num++) {
+//     	if(num % 8 == 0) printf(" ");
+//         printf("%d", bin[num]);
+//     }
+//     printf("%d", bA);
+    
+//     printf("\n");
+
+// // Barramento B
+// 	dec2bin(bB);
+//     for (int num = 0; num < size_word; num++) {
+//     	if(num % 8 == 0) printf(" ");
+//         printf("%d", bin[num]);
+//     }
+//     printf("%d", bB);
+
+//     printf("\n");
+
+//     // Barramento C
+// 	dec2bin(bC);
+//     for (int num = 0; num < size_word; num++) {
+//     	if(num % 8 == 0) printf(" ");
+//         printf("%d", bin[num]);
+//     }
+//     printf("%d", bC);
+    
+//     printf("\n");
+
+}
 
 int main()
 {
@@ -147,7 +208,10 @@ int main()
 
 		microPrograma[0] = 0b000000010000000000000000000000000000; // Next address = 2
 
-		microPrograma[2] = 0b000000010000001101010000010000000100; // Next 2; bB+1; Write SP; Read SP
+		microPrograma[2] = 0b000000011000001101010000010000000100; // Next 2; bB+1; Write SP; Read SP
+		microPrograma[3] = 0b000000100000001101010000010000000100; // Next 2; bB+1; Write SP; Read SP
+		microPrograma[4] = 0b000000101000001101010000010000000100; // Next 2; bB+1; Write SP; Read SP
+		microPrograma[5] = 0b000000010000001101010000010000000100; // Next 2; bB+1; Write SP; Read SP
 
 		instruction = microPrograma[mpc];
 		decode(instruction);
