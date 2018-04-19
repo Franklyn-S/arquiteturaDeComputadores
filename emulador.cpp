@@ -19,8 +19,7 @@ microInstrucao microPrograma[512];
 byte ram[16*1024];
 byte wr, rd, fetch;
 
-// #define size_word 32
-// int bin[size_word];
+char bin[36];
 
 void decode(word instruction){
 	barramento_read = (instruction << 60) >> 60;
@@ -118,79 +117,63 @@ void next_function(word next, int jam){
 	// if (jam == 4)	next = next | mbr;
 }
 
-// void dec2bin(int decimal){
-//     int aux;
-//     for (aux = size_word-1; aux >= 0; aux--) {
-//         if (decimal % 2 == 0) {
-//             bin[aux] = 0;
-//             decimal = decimal / 2;
-//         }
-//         else {
-//             bin[aux] = 1;
-//             decimal = decimal / 2;
-//         }
-//     }
-// }
+void dec2bin(int decimal){
+    int aux;
+    for (aux = 35; aux >= 0; aux--) {
+    	if(aux % 9 == 0){
+    		bin[aux] = ' ';
+    	}
+        else if (decimal % 2 == 0) {
+            bin[aux] = '0';
+            decimal = decimal / 2;
+        }
+        else {
+            bin[aux] = '1';
+            decimal = decimal / 2;
+        }
+    }
+	printf("%s", bin);
+}
 
 
 void debug(){
-	 system("clear");
+	system("clear");
 
-	printf("ULA %u\n", op_ula);
+	// Registrador MAR
+	dec2bin(mar);
+	printf(" | %u | MAR\n", mar);
 
-	printf("READ %u\n", barramento_read);
-	printf("WRITE %u\n", barramento_write);
-	
-	printf("Next %u\n", mpc);
-	printf("JAM %d\n", jam);
-	
-	printf("SP %u\n", sp);
-	printf("H %u\n", h);
-	
-	printf("bA %u\n", bA);
-	printf("bB %u\n", bB);
-	printf("bC %u\n", bC);
+	// Registrador MDR
+	dec2bin(mdr);
+	printf(" | %u | MDR\n", mdr);
 
-    // Registrador SP
-// 	dec2bin(SP);
-//     for (int num = 0; num < size_word; num++) {
-//     	if(num % 8 == 0) printf(" ");
-//         printf("%d", bin[num]);
-//     }
-//     printf("%d", SP);
+	// Registrador PC
+	dec2bin(pc);
+	printf(" | %u | PC\n", pc);
 
-//     printf("\n");
+	// Registrador SP
+	dec2bin(sp);
+	printf(" | %u | SP\n", sp);
 
-//     // Barramento A
-// 	dec2bin(bA);
-//     for (int num = 0; num < size_word; num++) {
-//     	if(num % 8 == 0) printf(" ");
-//         printf("%d", bin[num]);
-//     }
-//     printf("%d", bA);
-    
-//     printf("\n");
+	// Registrador LV
+	dec2bin(lv);
+	printf(" | %u | LV\n", lv);
 
-// // Barramento B
-// 	dec2bin(bB);
-//     for (int num = 0; num < size_word; num++) {
-//     	if(num % 8 == 0) printf(" ");
-//         printf("%d", bin[num]);
-//     }
-//     printf("%d", bB);
+	// Registrador CPP
+	dec2bin(cpp);
+	printf(" | %u | CPP\n", cpp);
 
-//     printf("\n");
+	// Registrador TOS
+	dec2bin(tos);
+	printf(" | %u | TOS\n", tos);
 
-//     // Barramento C
-// 	dec2bin(bC);
-//     for (int num = 0; num < size_word; num++) {
-//     	if(num % 8 == 0) printf(" ");
-//         printf("%d", bin[num]);
-//     }
-//     printf("%d", bC);
-    
-//     printf("\n");
+	// Registrador OPC
+	dec2bin(opc);
+	printf(" | %u | OPC\n", opc);
 
+	// Registrador H
+	dec2bin(h);
+	printf(" | %u | H\n", h);
 }
 
 int main()
