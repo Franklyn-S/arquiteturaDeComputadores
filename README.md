@@ -1,4 +1,4 @@
 # arquiteturaDeComputadores
-arquivos de arquitetura
+Arquivos de Arquitetura de Computadores
 
-site: http://www.lia.ufc.br/~yuri/20181/arquitetura/
+[Site da disciplina](http://www.lia.ufc.br/~yuri/20181/arquitetura/ "http://www.lia.ufc.br/~yuri/20181/arquitetura/")
