@@ -3,26 +3,24 @@
 #include <iostream>
 
 typedef unsigned int word;                 //32 bits.
-typedef unsigned char byte;				   //8 bits.
+typedef unsigned char byte;                //8 bits.
 typedef unsigned long int microInstrucao;  //64 bits.
 
-byte mbr;	        //Registrador mbr (especial).								
-word mar, mdr, pc, sp = 0, lv, cpp, tos, opc, h = 0, mpc, instruction;
+byte mbr;                                         //Registrador mbr (especial).								
 byte Z , N;
-word bA, bB, bC, bD;							  //Barramentos da ULA.
-
+byte ram[16*1024];                                //Memória RAM de 16 Mega Bytes.
+byte wr, rd, fetch;
 byte barramento_read, op_ula;
+
+word bA, bB, bC, bD;                              //Barramentos da ULA.
 word barramento_write, next;
+word mar, mdr, pc, sp = 0, lv, cpp, tos, opc, h = 0, mpc, instruction;
+
+microInstrucao microPrograma[512];                //Vetor onde se pode guardar 512 instruções de 64 bits.
 
 int jam;
 
-microInstrucao microPrograma[512];			      //Vetor onde se pode guardar 512 instruções de 64 bits.
-
-byte ram[16*1024];								  //Memória RAM de 16 Mega Bytes.
-
-byte wr, rd, fetch;
-
-char bin[36];
+char bin[36];                                     //Vetor auxiliar para mostrar na tela o valor binário dos registradores (debug).
 
 void decode(word instruction){
 	barramento_read = (instruction << 60) >> 60;
@@ -125,16 +123,17 @@ void next_function(word next, int jam){
 void dec2bin(int decimal){
     int aux;
     for (aux = 35; aux >= 0; aux--) {
+
     	if(aux % 9 == 0){
     		bin[aux] = ' ';
-    	}
-        else if (decimal % 2 == 0) {
+
+    	}else if (decimal % 2 == 0) {
             bin[aux] = '0';
-            decimal = decimal / 2;
-        }
-        else {
+            decimal /= 2;
+
+        }else {
             bin[aux] = '1';
-            decimal = decimal / 2;
+            decimal /= 2;
         }
     }
 	printf("%s", bin);
