@@ -2,21 +2,24 @@
 #include <stdlib.h>
 #include <iostream>
 
-typedef unsigned int word;
-typedef unsigned char byte;
-typedef unsigned long int microInstrucao;
+typedef unsigned int word;                 //32 bits.
+typedef unsigned char byte;				   //8 bits.
+typedef unsigned long int microInstrucao;  //64 bits.
 
-byte Z , N;
+byte mbr;	        //Registrador mbr (especial).								
 word mar, mdr, pc, sp = 0, lv, cpp, tos, opc, h = 0, mpc, instruction;
-word bA, bB, bC, bD;
-byte mbr;
+byte Z , N;
+word bA, bB, bC, bD;							  //Barramentos da ULA.
 
 byte barramento_read, op_ula;
 word barramento_write, next;
+
 int jam;
 
-microInstrucao microPrograma[512];
-byte ram[16*1024];
+microInstrucao microPrograma[512];			      //Vetor onde se pode guardar 512 instruções de 64 bits.
+
+byte ram[16*1024];								  //Memória RAM de 16 Mega Bytes.
+
 byte wr, rd, fetch;
 
 char bin[36];
@@ -66,8 +69,8 @@ void ula(byte operacao){
 	
 	bA = h;
 
-	byte opUla = (operacao << 2) >> 2;
-	byte desloc = operacao >> 6;
+	byte opUla  = (operacao << 2) >> 2;  //Operação da ULA. São necessários 6 primeiros bits dos 8 guardados em 'operacao' (byte).
+	byte desloc = operacao >> 6;         //O que isso significa?
 
 	switch(opUla){
 		case 12: bC = bA & bB;		break;
@@ -89,21 +92,23 @@ void ula(byte operacao){
 		default: break;
 	}
 
+
+	//O que isso significa?
 	if (bC == 0){
 		N = 0;
 		Z = 1;
-	}
-	else{
+
+	}else{
 		N = 1;
 		Z = 0;
 	}
 
-
+	//O que isso significa?
 	switch(desloc){
 		case 0:					break;
 		case 1: bC = bC >> 1; 	break;
 		case 2: bC = bC << 8; 	break;
-		default: bC = (bC << 8) >> 1;
+		default: bC = (bC << 8) >> 1;   //Não há necessidade dessa linha.
 	}
 }
 
