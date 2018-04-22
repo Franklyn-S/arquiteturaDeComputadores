@@ -1,6 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
+// #include <fstream>
 
 typedef unsigned int word;                 // 32 bits.
 typedef unsigned char byte;                // 8 bits.
@@ -8,7 +10,6 @@ typedef unsigned long int microInstrucao;  // 64 bits.
 
 byte mbr;                                         // Registrador MBR (especial).								
 byte Z , N;
-byte ram[16*1024];                                // Memória RAM de 16 Mega Bytes.
 byte wr, rd, fetch;
 byte barramento_read, op_ula;
 
@@ -16,11 +17,13 @@ word bA, bB, bC, bD;                              // Barramentos da ULA.
 word barramento_write, next;
 word mar = 0, mdr = 0, pc = 0, sp = 0, lv = 0, cpp = 0, tos = 0, opc = 0, h = 0, mpc = 0, instruction;
 
+int jam, op_memory;
+char bin[36];                                     // Vetor auxiliar para mostrar na tela o valor binário
+
+byte RAM[16*1024];                                // Memória RAM de 16 Mega Bytes.
 microInstrucao microPrograma[512];                // Vetor com as micro-instruções
 
-int jam;
 
-char bin[36];                                     // Vetor auxiliar para mostrar na tela o valor binário
 
 void decode(word instruction){
 	barramento_read = (instruction << 60) >> 60;
@@ -28,6 +31,7 @@ void decode(word instruction){
 	barramento_write = (instruction << 48) >> 55;
 	next = (instruction >> 27);
 	jam = (instruction << 37) >> 61;
+	op_memory = (instruction << 57) >> 61;
 }
 
 void ler_registrador(byte ender){
@@ -35,7 +39,7 @@ void ler_registrador(byte ender){
         case 0: bB = mdr; 	break;
         case 1: bB = pc; 	break;
         case 2: bB = mbr; 	break;
-        case 3: //mbru = mbr com extensão de sinal
+        case 3: // mbru = mbr com extensão de sinal
         {
             word sinal = mbr >> 7;
             bB = (sinal) ? 0xFFFFFF0 : 0;
@@ -51,15 +55,15 @@ void ler_registrador(byte ender){
 }
 
 void gravar_registrador(word ender){
-	if(ender & 1) mar = bC;		//0 0000 0001
-	if(ender & 2) mdr = bC;		//0 0000 0010
-	if(ender & 4) pc = bC; 		//0 0000 0100
-	if(ender & 8) sp = bC;		//0 0000 1000
-	if(ender & 16) lv = bC;		//0 0001 0000
-	if(ender & 32) cpp = bC; 	//0 0010 0000 
-	if(ender & 64) tos = bC;	//0 0100 0000
-	if(ender & 128) opc = bC;	//0 1000 0000
-	if(ender & 256) h = bC;		//1 0000 0000
+	if(ender & 1) mar = bC;		// 0 0000 0001
+	if(ender & 2) mdr = bC;		// 0 0000 0010
+	if(ender & 4) pc = bC; 		// 0 0000 0100
+	if(ender & 8) sp = bC;		// 0 0000 1000
+	if(ender & 16) lv = bC;		// 0 0001 0000
+	if(ender & 32) cpp = bC; 	// 0 0010 0000 
+	if(ender & 64) tos = bC;	// 0 0100 0000
+	if(ender & 128) opc = bC;	// 0 1000 0000
+	if(ender & 256) h = bC;		// 1 0000 0000
 }
 
 
@@ -106,21 +110,27 @@ void ula(byte operacao){
 		case 0:					break;
 		case 1: bC = bC >> 1; 	break;
 		case 2: bC = bC << 8; 	break;
-		default: bC = (bC << 8) >> 1;   //Não há necessidade dessa linha.
+		default: bC = (bC << 8) >> 1;   // Não há necessidade dessa linha.
 	}
 }
 
 void next_function(word next, int jam){
 
-	if (jam == 0){
-		mpc = next;
-	}
-	if (jam == 1)	mpc = next | (Z<<8);
-	if (jam == 2)	mpc = next | (N<<8);
-	if (jam == 4)	mpc = next | mbr;
+	if (jam == 0)	mpc = next;				// Próxima instrução
+	if (jam == 1)	mpc = next | (Z<<8);	// Pula quando bC = 0
+	if (jam == 2)	mpc = next | (N<<8);	// Pula quando bC != 0
+	if (jam == 4)	mpc = next | mbr;		// Pulo da memória
+}
+
+void memory(int op_memory){
+	
+	if(op_memory == 1)	mbr = RAM[pc];					// Fetch;
+	if(op_memory == 2) 	memcpy(&mdr, &RAM[mar*4], 4);	// Read
+	if(op_memory == 4) 	memcpy(&RAM[mar*4], &mdr, 4);	// Write
 }
 
 void dec2bin(int decimal){
+    
     int aux;
     for (aux = 35; aux >= 0; aux--) {
 
@@ -195,12 +205,22 @@ int main()
     	debug();
 
     	// Valores do micro programa
-    	// next_address - 9 | Jam - 3 | Deslocador - 2 | F0 | F1 | En A | En B | Inv A | Inc | H | OPC | TOS | CPP | LV | SP | PC | MDR | MAR | WRITE | READ | FETCH | Barramento B - 4
-		// Barramento B
+    	
+    	// Próxima instrução e pulo condicional 
+    	// next_address - 9 | Jam - 3 
+    	
+    	// ULA (8 bits) 
+    	// Deslocador - 2 | F0 | F1 | En A | En B | Inv A | Inc 
+    	
+    	// Barramento C
+    	// H | OPC | TOS | CPP | LV | SP | PC | MDR | MAR
+    	
+    	// Memória 
+    	// WRITE | READ | FETCH 
+		
+		// Barramento B (4 bits)
 		// MDR - 0 | PC - 1 | MBR - 2 | MBRU - 3 | SP - 4 | LV - 5 | CPP - 6 | TOS - 7 | OPC - 8 
 		 
-		// microPrograma[teste] = 0b000000010 000 00000000 000000000 000 0000;
-
 		microPrograma[0] = 0b000000010000000000000000000000000000; // Next address = 2
 
 		microPrograma[2] = 0b000000011000001101010000010000000100; // SP <- SP + 1
@@ -216,11 +236,10 @@ int main()
 		ula(op_ula);
 		gravar_registrador(barramento_write);
 		next_function(next, jam);
+		memory(op_memory);
 
 		getchar();
 	}
-
-
 
 return 0;
 }
