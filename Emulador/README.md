@@ -34,6 +34,10 @@ Recebe como argumentos a próxima micro-instrução *word* e o tipo de pulo *int
 
 Recebe um número *int* como argumento e retorna seu binário correspondente, separando em grupos de 8 bits.
 
+**memory**
+
+Recebe uma operação *int* como argumento e define qual função da memória RAM será executada (Fetch, Read ou Write).
+
 **debug**
 
 Mostra os valores, tanto decimal quanto binário, dos registradores e da pilha.
