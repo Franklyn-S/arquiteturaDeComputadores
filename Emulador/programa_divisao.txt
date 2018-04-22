@@ -1,0 +1,33 @@
+// Programa
+
+// Auxiliar <- Dividendo
+RAM[1] = 2;		RAM[2] = 25;	// ADD OPC,	[25]
+RAM[3] = 6;		RAM[4] = 28;	// MOV OPC,	[28]
+RAM[5] = 13;	RAM[6] = 25;	// SUB OPC,	[25]
+
+// LOOP
+RAM[7] = 2;		RAM[8] = 28;	// ADD OPC,	[28] 
+RAM[9] = 11;	RAM[10] = 27;	// JZ OPC,	[27]
+
+// Dividendo <- Dividendo - Divisor
+RAM[11] = 13;	RAM[12] = 26;	// SUB OPC,	[26]
+RAM[13] = 6;	RAM[14] = 28;	// MOV OPC,	[28]
+RAM[15] = 13;	RAM[16] = 28;	// SUB OPC,	[28]
+
+// Quociente ++
+RAM[17] = 2;	RAM[18] = 27;	// ADD OPC,	[27]
+RAM[19] = 2;	RAM[20] = 29;	// ADD OPC,	[29]
+RAM[21] = 6;	RAM[22] = 27;	// MOV OPC,	[27]
+RAM[23] = 13;	RAM[24] = 27;	// SUB OPC,	[27]
+
+// GOTO
+RAM[25] = 9;	RAM[26] = 7;	// GOTO OPC, [7]
+RAM[27] = 9;	RAM[28] = 27;	// GOTO OPC, [27]
+
+// Variáveis
+
+RAM[25*4] = 24;
+RAM[26*4] = 6;
+RAM[27*4] = 0; // Quociente
+RAM[28*4] = 0; // Auxiliar
+RAM[29*4] = 1; // Mais um

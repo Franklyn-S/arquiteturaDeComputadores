@@ -20,7 +20,8 @@ word mar = 0, mdr = 0, pc = 0, sp = 0, lv = 0, cpp = 0, tos = 0, opc = 0, h = 0,
 int jam, op_memory;
 char bin[36];                                     // Vetor auxiliar para mostrar na tela o valor binário
 
-byte RAM[16*1024];                                // Memória RAM de 16 Mega Bytes.
+// byte* RAM = (byte*) calloc (16*1024,sizeof(byte));	// Memória RAM de 16 Mega Bytes.
+byte RAM[16*1024];	// Memória RAM de 16 Mega Bytes.
 microInstrucao microPrograma[512];                // Vetor com as micro-instruções
 
 
@@ -123,10 +124,12 @@ void next_function(word next, int jam){
 }
 
 void memory(int op_memory){
-	
-	if(op_memory == 1)	mbr = RAM[pc];					// Fetch;
-	if(op_memory == 2) 	memcpy(&mdr, &RAM[mar*4], 4);	// Read
-	if(op_memory == 4) 	memcpy(&RAM[mar*4], &mdr, 4);	// Write
+	switch(op_memory){
+		case 1:	mbr = RAM[pc]; break;					// Fetch;
+		case 2: memcpy(&mdr, &RAM[mar*4], 4); break;	// Read
+		case 4: memcpy(&RAM[mar*4], &mdr, 4); break;	// Write
+		default: ;
+	}
 }
 
 void dec2bin(int decimal){
@@ -152,6 +155,14 @@ void dec2bin(int decimal){
 
 void debug(){
 	system("clear");
+
+	// MPC
+	dec2bin(mpc);
+	printf(" | %u | MPC\n\n", mpc);
+
+	// Registrador MBR
+	dec2bin(mbr);
+	printf(" | %u | MBR\n", mbr);
 
 	// Registrador MAR
 	dec2bin(mar);
@@ -201,84 +212,15 @@ void debug(){
 int main()
 {
 
-	//PROGRAMA DA MEMORIA
+	// PROGRAMA
+	// programa_divisao.txt
+
+	// FIRMWARE
+	// firmware.txt
 	
-	RAM[1] = 2;
-	RAM[2] = 5;
-
-	RAM[3] = 13;
-	RAM[4] = 3;
-
-	RAM[12] = 0b00000011;
-	RAM[13] = 0;
-	RAM[14] = 0;
-	RAM[15] = 0;
-
-	RAM[20] = 0b00001001;
-	RAM[21] = 0;
-	RAM[22] = 0;
-	RAM[23] = 0;
-
-	//FIRMWARE
-	
-	microPrograma[0] = 0b000000000100001101010000001000010001; //PC <- PC + 1; fetch; GOTO MBR;
-
-	//OPC = OPC + memory[end_word];  (Linguagem de máquina: Byte 2; Sintaxe assembly: ADD OPC, [END])
-	microPrograma[2] = 0b000000011000001101010000001000010001; //PC <- PC + 1; fetch;
-	microPrograma[3] = 0b000000100000000101000000000010100010; //MAR <- MBR; read;
-	microPrograma[4] = 0b000000101000000101001000000000000000; //H <- MDR;
-	microPrograma[5] = 0b000000000000001111000100000000001000; //OPC <- OPC + H; GOTO MAIN;
-
-	//memory[end_word] = OPC;  (Linguagem de maquina: Byte 6; Sintaxe assembly: MOV OPC, [END])
-	microPrograma[6] = 0b000000111000001101010000001000010001; //PC <- PC + 1; fetch;
-	microPrograma[7] = 0b000001000000000101000000000010000010; //MAR <- MBR;
-	microPrograma[8] = 0b000000000000000101000000000101001000; //MDR <- OPC; write; GOTO MAIN;
-
-	//goto endereco_comando_programa; (Linguagem de mÃ¡quina: Byte 9; Sintaxe assembly: GOTO byte)
-	microPrograma[9]  = 0b000001010000001101010000001000010001; //PC <- PC + 1; fetch;
-	microPrograma[10] = 0b000000000100000101000000001000010010; //PC <- MBR; fetch; GOTO MBR;
-
-	//if OPC = 0 goto endereco_comando_programa else goto proxima_linha; (Linguagem de mÃ¡quina: Byte 11; Sintaxe assembly: JZ OPC, byte)
-	microPrograma[11]  = 0b000001100001000101000100000000001000; //OPC <- OPC; IF ALU = 0 GOTO 268 (100001100) ELSE GOTO 12 (000001100);
-	microPrograma[12]  = 0b000000000000001101010000001000000001; //PC <- PC + 1; GOTO MAIN;
-	microPrograma[268] = 0b100001101000001101010000001000010001; //PC <- PC + 1; fetch;
-	microPrograma[269] = 0b000000000100000101000000001000010010; //PC <- MBR; fetch; GOTO MBR;
-
-	//OPC = OPC - memory[end_word];  (Linguagem de maquina: Byte 13; Sintaxe assembly: SUB OPC, [END])
-	microPrograma[13] = 0b000001110000001101010000001000010001; //PC <- PC + 1; fetch;
-	microPrograma[14] = 0b000001111000000101000000000010100010; //MAR <- MBR; read;
-	microPrograma[15] = 0b000010000000000101001000000000000000; //H <- MDR;
-	microPrograma[16] = 0b000000000000001111110100000000001000; //OPC <- OPC - H; GOTO MAIN;
-
-	// Valores do micro programa
-	
-	// Próxima instrução e pulo condicional 
-	// next_address - 9 | Jam - 3 
-	
-	// ULA (8 bits) 
-	// Deslocador - 2 | F0 | F1 | En A | En B | Inv A | Inc 
-	
-	// Barramento C
-	// H | OPC | TOS | CPP | LV | SP | PC | MDR | MAR
-	
-	// Memória 
-	// WRITE | READ | FETCH 
-	
-	// Barramento B (4 bits)
-	// MDR - 0 | PC - 1 | MBR - 2 | MBRU - 3 | SP - 4 | LV - 5 | CPP - 6 | TOS - 7 | OPC - 8 
-	 
-	// microPrograma[0] = 0b000000010000000000000000000000000000; // Next address = 2
-
-	// microPrograma[2] = 0b000000011000001101010000010000000100; // SP <- SP + 1
-	// microPrograma[3] = 0b000000100000000101001000000000000100; // H <- SP
-	// microPrograma[4] = 0b000000101000001111000000010000000100; // SP <- SP + H
-	// microPrograma[5] = 0b000000011001000000000000000000000000; // Volta para a MI 3 caso N = 1 
-	// microPrograma[515] = 0b000000010000000000000000000000000000; // Volta para a MI 2
-    
     while(1){
 
     	debug();
-
 
 		instruction = microPrograma[mpc];
 		decode(instruction);
@@ -286,8 +228,8 @@ int main()
 		ler_registrador(barramento_read);
 		ula(op_ula);
 		gravar_registrador(barramento_write);
-		next_function(next, jam);
 		memory(op_memory);
+		next_function(next, jam);
 
 		getchar();
 	}
