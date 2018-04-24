@@ -18,8 +18,6 @@ word mar = 0, mdr = 0, pc = 0, sp = 0, lv = 0, cpp = 0, tos = 0, opc = 0, h = 0,
 int jam, op_memory;
 char bin[36];                                     // Vetor auxiliar para mostrar na tela o valor binário
 
-//byte* RAM = (byte*) calloc (16*1024,sizeof(byte)): // Memória RAM de 16 Mega Bytes. ??
-
 byte RAM[16*1024];                                // Memória RAM de 16 Mega Bytes.
 microInstrucao microPrograma[512];                // Vetor com as micro-instruções
 microInstrucao mir;
@@ -32,7 +30,7 @@ void decode(microInstrucao instruction){
 	next = (instruction >> 27);
 	jam = (instruction << 37) >> 61;
 
-	op_memory = (instruction << 57) >> 61; //Operação de Memória. 3 bits (write, read, fetch) 4 bits do bB.
+	op_memory = (instruction << 57) >> 61; //Operação de Memória. 3 bits (write, read, fetch)
 }
 
 void ler_registrador(byte ender){
