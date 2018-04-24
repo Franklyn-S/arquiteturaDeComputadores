@@ -18,8 +18,9 @@ word mar = 0, mdr = 0, pc = 0, sp = 0, lv = 0, cpp = 0, tos = 0, opc = 0, h = 0,
 int jam, op_memory;
 char bin[36];                                     // Vetor auxiliar para mostrar na tela o valor binário
 
-// byte* RAM = (byte*) calloc (16*1024,sizeof(byte));	// Memória RAM de 16 Mega Bytes.
-byte RAM[16*1024];	// Memória RAM de 16 Mega Bytes.
+//byte* RAM = (byte*) calloc (16*1024,sizeof(byte)): // Memória RAM de 16 Mega Bytes. ??
+
+byte RAM[16*1024];                                // Memória RAM de 16 Mega Bytes.
 microInstrucao microPrograma[512];                // Vetor com as micro-instruções
 microInstrucao instruction;
 
@@ -30,7 +31,8 @@ void decode(microInstrucao instruction){
 	barramento_write = (instruction << 48) >> 55;
 	next = (instruction >> 27);
 	jam = (instruction << 37) >> 61;
-	op_memory = (instruction << 57) >> 61;
+
+	op_memory = (instruction << 57) >> 61; //Operação de Memória. 3 bits (write, read, fetch) 4 bits do bB.
 }
 
 void ler_registrador(byte ender){
@@ -54,15 +56,15 @@ void ler_registrador(byte ender){
 }
 
 void gravar_registrador(word ender){
-	if(ender & 1) mar = bC;		// 0 0000 0001
-	if(ender & 2) mdr = bC;		// 0 0000 0010
-	if(ender & 4) pc = bC; 		// 0 0000 0100
-	if(ender & 8) sp = bC;		// 0 0000 1000
-	if(ender & 16) lv = bC;		// 0 0001 0000
-	if(ender & 32) cpp = bC; 	// 0 0010 0000 
-	if(ender & 64) tos = bC;	// 0 0100 0000
-	if(ender & 128) opc = bC;	// 0 1000 0000
-	if(ender & 256) h = bC;		// 1 0000 0000
+	if(ender & 1) mar = bC;		//... 0 0000 0001
+	if(ender & 2) mdr = bC;		//... 0 0000 0010
+	if(ender & 4) pc = bC; 		//... 0 0000 0100
+	if(ender & 8) sp = bC;		//... 0 0000 1000
+	if(ender & 16) lv = bC;		//... 0 0001 0000
+	if(ender & 32) cpp = bC; 	//... 0 0010 0000 
+	if(ender & 64) tos = bC;	//... 0 0100 0000
+	if(ender & 128) opc = bC;	//... 0 1000 0000
+	if(ender & 256) h = bC;		//... 1 0000 0000
 }
 
 
@@ -109,7 +111,7 @@ void ula(byte operacao){
 		case 0:					break;
 		case 1: bC = bC >> 1; 	break;
 		case 2: bC = bC << 8; 	break;
-		default: bC = (bC << 8) >> 1;   // Não há necessidade dessa linha.
+		default: bC = (bC << 8) >> 1;
 	}
 }
 
@@ -123,7 +125,7 @@ void next_function(word next, int jam){
 
 void memory(int op_memory){
 	switch(op_memory){
-		case 1:	mbr = RAM[pc]; break;					// Fetch;
+		case 1:	mbr = RAM[pc];                break;	// Fetch;
 		case 2: memcpy(&mdr, &RAM[mar*4], 4); break;	// Read
 		case 4: memcpy(&RAM[mar*4], &mdr, 4); break;	// Write
 		default: ;
@@ -282,8 +284,7 @@ void firmware(){
 	microPrograma[16] = 0b000000000000001111110100000000001000; //OPC <- OPC - H; GOTO MAIN;
 }
 
-int main()
-{
+int main(){
 
 	// PROGRAMA
 	programa();
@@ -293,19 +294,26 @@ int main()
 	
     while(1){
 
-    	debug();
+    	debug();                                  //--- A função principal (essa aqui) corresponde basicamente num loop infinito
+    	                                          //    das instrunções abaixo. ----.
 
-		instruction = microPrograma[mpc];
-		decode(instruction);
-	
-		ler_registrador(barramento_read);
-		ula(op_ula);
-		gravar_registrador(barramento_write);
-		memory(op_memory);
-		next_function(next, jam);
+		instruction = microPrograma[mpc];                 //Carrega a primeira microinstrução na variável 'instruction' correspondende
+		                                          //ao valor guardado em MPC.
+
+		decode(instruction);          				      //Separa todas as partes da instrução para a execução.
+
+		ler_registrador(barramento_read);         //Lemos o valor do registrador correspondente a microinstrução.
+
+		ula(op_ula);                              //Mandamos a operação que diz respeito a ULA.
+
+		gravar_registrador(barramento_write);     //Gravamos no registrador correspondente o resultado da operação da ULA.
+
+		memory(op_memory);                        //Executamos a operação que diz respeito a memória.
+
+		next_function(next, jam);                 //Chamamos a próxima função.
 
 		getchar();
-	}
+}
 
 return 0;
 }
