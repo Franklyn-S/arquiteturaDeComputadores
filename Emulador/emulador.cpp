@@ -294,23 +294,21 @@ int main(){
 	
     while(1){
 
-    	debug();                                  //--- A função principal (essa aqui) corresponde basicamente num loop infinito
-    	                                          //    das instrunções abaixo. ----.
+    	debug();
 
-		mir = microPrograma[mpc];                 //Carrega a primeira microinstrução na variável 'instruction' correspondende
-		                                          //ao valor guardado em MPC.
+		mir = microPrograma[mpc];
 
-		decode(mir);          				      //Separa todas as partes da instrução para a execução.
+		decode(mir);
 
-		ler_registrador(barramento_read);         //Lemos o valor do registrador correspondente a microinstrução.
+		ler_registrador(barramento_read);
 
-		ula(op_ula);                              //Mandamos a operação que diz respeito a ULA.
+		ula(op_ula);
 
-		gravar_registrador(barramento_write);     //Gravamos no registrador correspondente o resultado da operação da ULA.
+		gravar_registrador(barramento_write);
 
-		memory(op_memory);                        //Executamos a operação que diz respeito a memória.
+		memory(op_memory);
 
-		next_function(next, jam);                 //Chamamos a próxima função.
+		next_function(next, jam);
 
 		getchar();
 }
