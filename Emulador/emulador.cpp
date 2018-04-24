@@ -22,7 +22,7 @@ char bin[36];                                     // Vetor auxiliar para mostrar
 
 byte RAM[16*1024];                                // Memória RAM de 16 Mega Bytes.
 microInstrucao microPrograma[512];                // Vetor com as micro-instruções
-microInstrucao instruction;
+microInstrucao mir;
 
 
 void decode(microInstrucao instruction){
@@ -297,10 +297,10 @@ int main(){
     	debug();                                  //--- A função principal (essa aqui) corresponde basicamente num loop infinito
     	                                          //    das instrunções abaixo. ----.
 
-		instruction = microPrograma[mpc];                 //Carrega a primeira microinstrução na variável 'instruction' correspondende
+		mir = microPrograma[mpc];                 //Carrega a primeira microinstrução na variável 'instruction' correspondende
 		                                          //ao valor guardado em MPC.
 
-		decode(instruction);          				      //Separa todas as partes da instrução para a execução.
+		decode(mir);          				      //Separa todas as partes da instrução para a execução.
 
 		ler_registrador(barramento_read);         //Lemos o valor do registrador correspondente a microinstrução.
 
