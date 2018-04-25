@@ -24,13 +24,13 @@ microInstrucao mir;
 
 
 void decode(microInstrucao instruction){
-	barramento_read = (instruction << 60) >> 60;
-	op_ula = (instruction << 40) >> 56;
-	barramento_write = (instruction << 48) >> 55;
+	barramento_read = 0b1111 & (instruction); //Esse 0b1111 é uma máscara e ao se fazer o & lógico obteremos o valor dos 4 primeiros bis de instruction.
+	op_ula = 0b11111111 & (instruction >> 16); //0b11111111 é uma máscara para podermos pegar os bits que são operações da ula.
+	barramento_write = 0b111111111 & (instruction >> 7);//0b111111111 é uma máscara, e ao se fazer o & lógico com instruction deslocado 7 bits obteremos os 9 bits que habilitarão a escrita nos registradores.
 	next = (instruction >> 27);
-	jam = (instruction << 37) >> 61;
+	jam = 0b111 & (instruction >> 24);// 0b111 é uma máscara e ao se fazer o & lógico com instruction deslocado 24 bits obteremos os bits da jam.
 
-	op_memory = (instruction << 57) >> 61; //Operação de Memória. 3 bits (write, read, fetch)
+	op_memory = 0b111 & (instruction >> 4); //Operação de Memória. 3 bits (write, read, fetch)
 }
 
 void ler_registrador(byte ender){
