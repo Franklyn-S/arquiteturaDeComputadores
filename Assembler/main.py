@@ -3,28 +3,27 @@ import struct
 WORD, LPAREN, RPAREN, EOF, COLON, SPACE = "WORD", "(", ")", "EOF", ":", " "
 
 mnemonics = {
-    "nop":            0x01,
-    "iadd":           0x02,
-    "isub":           0x05,
-    "iand":           0x08,
-    "ior":            0x0B,
-    "dup":            0x0E,
-    "pop":            0x10,
-    "swap":           0x13,
-    "bipush":         0x19,
-    "iload":          0x1C,
-    "istore":         0x22,
-    "wide":           0x28,
-    "ldc_w":          0x32,
-    "iinc":           0x36,
-    "goto":           0x3C,
-    "iflt":           0x43,
-    "ifeq":           0x47,
-    "if_icmpeq":      0x4B,
-    "invokevirtual":  0x55,
-    "ireturn":        0x6B
+    "nop": [0x01, 1],
+    "iadd": [0x02, 1],
+    "isub": [0x05, 1],
+    "iand": [0x08, 1],
+    "ior": [0x0B, 1],
+    "dup": [0x0E, 1],
+    "pop": [0x10, 1],
+    "swap": [0x13, 1],
+    "bipush": [0x19, 2],
+    "iload": [0x1C, 2],
+    "istore": [0x22, 2],
+    "wide": [0x28, 1],
+    "ldc_w": [0x32, 2],
+    "iinc": [0x36, 3],
+    "goto": [0x3C, 3],
+    "iflt": [0x43, 2],
+    "ifeq": [0x47, 2],
+    "if_icmpeq": [0x4B, 3],
+    "invokevirtual": [0x55, 1],
+    "ireturn": [0x6, 1]
 }
-
 compiledCmds = []
 
 class Token(object):
@@ -163,24 +162,22 @@ for l in asm.readlines():
 
 asm.close()
 
-print(
-    "\n".join(
-        list(
-            map(
-                lambda x: 
-                " |".join(
-                    list(
-                        map(
-                            lambda y: '{:^14s}'.format(y),
-                            x
-                        )
-                    )
-                ),
-                cmds
-            )
-        )
-    )
-)
+class Mounter:
+    def __init__(self, cmds):
+        self.cmds = cmds
+        self.vars = []
+
+    def get_mnemonics(self):
+        return list(map(lambda x: x[1], self.cmds))
+
+    def get_vars(self):
+        for cmd in self.cmds:
+            if (cmd[1] in ['iload']):
+                self.vars.append(cmd[2])
+                return self.vars
+
+mounter = Mounter(cmds)
+print(mounter.get_vars())
 
 '''
 binary = open('binary.bin', 'wb')
