@@ -1,22 +1,15 @@
-main: NOP
-      IADD
-      ISUB
-      IAND
-      IOR
-      DUP
-      POP
-      SWAP
-      BIPUSH 25
+      ILOAD j
       ILOAD k
+      IADD
+      ISTORE i
+      ILOAD i
+      BIPUSH 3
+      IF_ICMPEQ L1
+      ILOAD j
+      BIPUSH 1
+      ISUB
+      ISTORE j
+      GOTO L2
+L1:   BIPUSH 0
       ISTORE k
-      WIDE
-      WIDE_ILOAD
-      WIDE_ISTORE
-      LDC_W 9
-      IINC
-loop: GOTO loop
-      IFLT
-      IFEQ
-      IF_ICMPEQ
-      INVOKEVIRTUAL
-      IRETURN
+L2:   NOP
