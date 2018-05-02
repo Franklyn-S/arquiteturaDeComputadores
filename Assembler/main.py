@@ -22,29 +22,57 @@ def pretty_print(cmds):
         )
     )
 
-mnemonics = {
-    "nop": [0x01, 1],
-    "iadd": [0x02, 1],
-    "isub": [0x05, 1],
-    "iand": [0x08, 1],
-    "ior": [0x0B, 1],
-    "dup": [0x0E, 1],
-    "pop": [0x10, 1],
-    "swap": [0x13, 1],
-    "bipush": [0x19, 2],
-    "iload": [0x1C, 2],
-    "istore": [0x22, 2],
-    "wide": [0x28, 1],
-    "ldc_w": [0x32, 2],
-    "iinc": [0x36, 3],
-    "goto": [0x3C, 3],
-    "iflt": [0x43, 2],
-    "ifeq": [0x47, 2],
-    "if_icmpeq": [0x4B, 3],
-    "invokevirtual": [0x55, 1],
-    "ireturn": [0x6, 1]
+
+site_per_cmd = {
+    0x01: 1,
+    0x02: 1,
+    0x05: 1,
+    0x08: 1,
+    0x0B: 1,
+    0x0E: 1,
+    0x10: 1,
+    0x13: 1,
+    0x19: 2,
+    0x1C: 2,
+    0x22: 2,
+    0x28: 1,
+    0x32: 2,
+    0x36: 3,
+    0x3C: 3,
+    0x43: 2,
+    0x47: 2,
+    0x4B: 3,
+    0x55: 1,
+    0x6: 1
 }
-compiledCmds = []
+
+mnemonics_list = {
+    'nop': 0x01,
+    'iadd': 0x02,
+    'isub': 0x05,
+    'iand': 0x08,
+    'ior': 0x0B,
+    'dup': 0x0E,
+    'pop': 0x10,
+    'swap': 0x13,
+    'bipush': 0x19,
+    'iload': 0x1C,
+    'istore': 0x22,
+    'wide': 0x28,
+    'ldc_w': 0x32,
+    'iinc': 0x36,
+    'goto': 0x3C,
+    'iflt': 0x43,
+    'ifeq': 0x47,
+    'if_icmpeq': 0x4B,
+    'invokevirtual': 0x55,
+    'ireturn': 0x6,
+}
+
+mnemonics = {}
+
+for mnemonic in mnemonics_list:
+    mnemonics[mnemonic] = [mnemonics_list[mnemonic], site_per_cmd[mnemonics_list[mnemonic]]]
 
 class Token(object):
     def __init__(self, type, value):
@@ -164,28 +192,19 @@ class Interpreter(object):
         self.error()
   
     def cmd(self):
-        result = [None, None, None]
+        result = [None, None, None, None]
         result[0] = self.flag()
         result[1] = self.mnemonic()
         result[2] = self.argument()
-
+        result[3] = self.argument()
+        
         return result
 
-asm = open('assembly.asm', 'r')
-
-cmds = []
-
-for l in asm.readlines():
-    lexer = Lexer(l)
-    interpreter = Interpreter(lexer)
-    cmds.append(interpreter.cmd())
-
-asm.close()
-
-class Mounter:
-    def __init__(self, cmds):
-        self.cmds = cmds
+class Mounter(object):
+    def __init__(self):
+        self.cmds = []
         self.vars = []
+        self.binary = bytearray()
 
     def get_mnemonics(self):
         return list(map(lambda x: x[1], self.cmds))
@@ -246,17 +265,45 @@ class Mounter:
         self.replace_vars()
         self.convert_labels_to_offset()
         self.replace_mnemonics()
-        print(self.cmds)
 
-mounter = Mounter(cmds)
-mounter.mount()
+    def read_file(self, file_name):
+        asm = open(file_name, 'r')
 
-'''
-binary = open('binary.bin', 'wb')
+        cmds = []
 
-for cmd in cmds:
-    print( mnemonics[cmd[1]])
-    binary.write(struct.pack('i', mnemonics[cmd[1]]))
+        for l in asm.readlines():
+            lexer = Lexer(l)
+            interpreter = Interpreter(lexer)
+            cmds.append(interpreter.cmd())
 
-binary.close()
-'''
+        asm.close()
+
+        self.cmds = cmds
+        
+    def write_file(self, file_name):
+        self.mount()
+        for cmd in self.cmds:
+            for i, byte in enumerate(cmd[1:]):
+                if byte:
+                    byte = int(byte)
+                    self.binary.append(byte)
+
+                    if i > 1 and site_per_cmd[cmd[1]] > 2:
+                        lft = (byte << 8) >> 8
+                        rgt = byte >> 8
+                        self.binary.append(rgt)
+                        self.binary.append(lft)
+
+        
+        binary = open(file_name, 'wb')
+        binary.write(self.binary)
+        binary.close()
+
+
+def main():
+    mounter = Mounter()
+    mounter.read_file('assembly.asm')
+    mounter.write_file('binary.bin')
+
+if __name__ == '__main__':
+    main()
