@@ -22,6 +22,17 @@ byte RAM[16*1024];                                // Memória RAM de 16 Mega Byt
 microInstrucao microPrograma[512];                // Vetor com as micro-instruções
 microInstrucao mir;
 
+void carregar_microprograma(){
+	FILE *arquivo;
+	arquivo = fopen("microprog.rom","rb");
+
+	if(arquivo == NULL) {
+		printf("Não foi possível abrir o arquivo");
+		exit(1);
+	}
+	fread(microPrograma,sizeof(microInstrucao),512,arquivo);
+	fclose(arquivo);
+}
 
 void decode(microInstrucao instruction){
 	barramento_read = (instruction << 60) >> 60;
@@ -283,12 +294,14 @@ void firmware(){
 }
 
 int main(){
-
+	
+	carregar_microprograma();
+	
 	// PROGRAMA
-	programa();
+	//programa();
 
 	// FIRMWARE
-	firmware();
+	//firmware();
 	
     while(1){
 
