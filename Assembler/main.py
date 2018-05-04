@@ -1,8 +1,9 @@
 '''
     A lista abaixo refere-se a lista dos tipos de TOKENS que o assembler suporta
     Token é todo e qualquer conjunto de caracteres com significado semântico
-    para a linguagem
-    WORD - Conjunto alfanumético de caractéres
+    para a linguagem.
+
+    WORD - Conjunto alfanumérico de caractéres
     LPAREN - Parêntese abrindo "("
     RPAREN - Parêntese fechando ")"
     EOF - Fim de linha
@@ -13,9 +14,9 @@ WORD, LPAREN, RPAREN, EOF, COLON, SPACE = "WORD", "(", ")", "EOF", ":", " "
 
 
 '''
-    O dicionário abaixo mapeira o binário de cada comando
+    O dicionário abaixo mapeia o binário de cada comando
     com o seu tamanho completo, o qual engloba o tamanho, 
-    em bytes, do mnemônic e seus argumentos
+    em bytes, do mnemônic e de seus argumentos.
 '''
 size_per_cmd = {
     0x01: 1,
@@ -42,8 +43,8 @@ size_per_cmd = {
 
 
 '''
-    O dicionário abaixo mapeira cada mnemônico com
-    o seu respectivo código binário
+    O dicionário abaixo mapeia cada mnemônico com
+    o seu respectivo código binário.
 '''
 mnemonics_list = {
     'nop': 0x01,
@@ -243,65 +244,179 @@ class Lexer(object):
         return Token(EOF, None)
 
 
+'''
+    Classe Interpreter:
+    Esta classe é responsável por caracterizar a semântica
+    da linguagem, ou seja, basicamente, a valoração dada,
+    condicionalmente, à sintática.
+    Os seus atributos são:
+    - lexer: o interpretador, para formar a semântica,
+             recebe a sintática, ou seja, uma intância
+             da classe Lexer.
+    - current_token: o Token atual a ser tratado, por exemplo,
+                     LPAREN, WORD, etc...
+'''
 class Interpreter(object):
     def __init__(self, lexer):
         self.lexer = lexer
         self.current_token = self.lexer.get_next_token()
 
+    '''
+        Método error:
+        Emite um erro quando uma ordenação dada ao conjunto de
+        Tokens for desrespeitado, por exemplo: 
+            IADD label1: k
+        Claramente, o comando acima está errado.
+    '''
     def error(self):
-        raise Exception('Deixa de ser abestado')
+        raise Exception('Semantic error')
 
+    '''
+        Método eat:
+        Verifica se o tipo do Token recebido como parâmetro
+        é igual ao Token atual (informação dada pelo atributo
+        'current_token'), e caso seja, ele guarda o próximo Token
+        (capturado atráves do método 'get_next_token', explicado
+        posteriormente) no atributo 'current_token'. Caso não
+        seja, retorna o erro.
+
+        Basicamente, se for chamado eat(WORD), obrigatoriamente
+        o Token atual deve ser uma 'word' e sendo passará para
+        o próximo.
+        
+        Parâmetos:
+        - token_type: Tipo do Token atual
+
+    '''
     def eat(self, token_type):
         if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
         else:
             self.error()
 
+    '''
+        Método argument:
+        Captura o argumento após capturar-se o label e 
+        o mnemônico.
+    '''
     def argument(self):
+        # Captura qual o token atual
         token = self.current_token
         
+        '''
+            Se o Token capturado for uma WORD
+            é armazenado seu valor e retornado.
+        '''
         if token.type == WORD:
             argument = token.value
             self.eat(WORD)
             return argument
+
+        '''
+            Se o Token capturado for um LPAREN
+            é chamado novamente 'argument()' afim de que
+            caso o argumento esta entre vários parênteses, 
+            como ((((k)))). Então, como a função é chamada
+            recursivamete e ignorando os parênteses, ao fim, 
+            apenas o 'k' é retornando.
+        '''
         elif token.type == LPAREN:
             self.eat(LPAREN)
             result = self.argument()
             self.eat(RPAREN)
             return result
+
+        '''
+            Se o Token capturado for EOF, então quer dizer que não
+            há argumento e um caratére vazio ('') é retornado.
+        '''
         elif token.type == EOF:
             return ''
 
+
+    '''
+        Método mnemonic:
+        Captura o argumento após capturar-se o label.
+    '''
     def mnemonic(self):
+        '''
+            Se o Token capturado for uma WORD
+            é armazenado seu valor e retornado.
+        '''
         if self.current_token.type == WORD:
             mnemonic = self.current_token.value
             self.eat(WORD)
-            return mnemonic.lower()
+            return mnemonic.lower() # os caratéres do mnemônico são convertidos em lowercase
+
+        '''
+            Se o Token capturado não for uma WORD
+            um erro é retornado
+        '''
         else:
             self.error()
 
-    def flag(self):
-        _flag = ''
+
+    '''
+        Método label:
+        Captura inicialmente o label do comando (linha).
+    '''
+    def label(self):
+        # À princípio, o label é uma string vazia
+        _label = ''
+
+
+        '''
+            Se o Token atual for uma WORD
+            é armazenado seu valor e concatenado à
+            string do label.
+            Após isso, deve ser capturado um COLON ':'
+            e concatenado à string do label.
+            Depois, o label é retornado
+        '''
         if self.current_token.type == WORD:
-            _flag += self.current_token.value
+            _label += self.current_token.value
             self.eat(WORD)
-            _flag += self.current_token.value
+            _label += self.current_token.value
             self.eat(COLON)
-            return _flag
+            return _label
+
+        '''
+            Se o Token atual for uma espaço (SPACE),
+            então não há label nesta linha, e portanto,
+            um caratére vazio é retornado.
+        '''
         elif self.current_token.type == SPACE:
             self.eat(SPACE)
             return ''
+
+        '''
+            Se a execução chegar até aqui, então nada 
+            foi retornado, nem uma WORD, nem um SPACE,
+            logo um erro é retornado 
+        '''
         self.error()
-  
+
+
+    '''
+        Método cmd:
+        Captura respectivamente, um label, um mnemônico,
+        um argumneto e outro argumento (há comandos com dois
+        argumentos).
+        Isso é guardado em ordem em uma lista e esta é 
+        retornada.
+    '''
     def cmd(self):
         result = [None, None, None, None]
-        result[0] = self.flag()
+        result[0] = self.label()
         result[1] = self.mnemonic()
         result[2] = self.argument()
         result[3] = self.argument()
         
         return result
 
+'''
+    Classe Mounter:
+'''
 class Mounter(object):
     def __init__(self):
         self.cmds = []
