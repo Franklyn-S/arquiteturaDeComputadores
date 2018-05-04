@@ -183,55 +183,55 @@ class Lexer(object):
         # Executa enquanto o caractére atual não for nulo,
         # ou seja, não chegar no fim da linha.
         while self.current_char is not None:
-            '''
-                Se o caractére atual é um espaço, chama o método
-                'skip_whitespace', pula todos os demais e continua
-                com a execução.
-            '''
             if (self.current_char.isspace() or self.current_char == '\t') and self.pos != 0:
+                '''
+                    Se o caractére atual é um espaço, chama o método
+                    'skip_whitespace', pula todos os demais e continua
+                    com a execução.
+                '''
                 self.skip_whitespace()
                 continue
 
-            '''
-                Se o caractére atual é um alfanumérico, chama o método
-                'getWord' e retorna um Token do tipo WORD, com o valor
-                da string capturada.
-            '''
             if self.current_char.isalpha() or self.current_char.isdigit():
+                '''
+                    Se o caractére atual é um alfanumérico, chama o método
+                    'getWord' e retorna um Token do tipo WORD, com o valor
+                    da string capturada.
+                '''
                 word = self.getWord()
                 return Token(WORD, word)
 
-            '''
-                Se o caractére atual é um '(', avança um caratére
-                e retorna um Token do tipo LPAREN, com o valor '('.
-            '''
             if self.current_char == '(':
+                '''
+                    Se o caractére atual é um '(', avança um caratére
+                    e retorna um Token do tipo LPAREN, com o valor '('.
+                '''
                 self.advance()
                 return Token(LPAREN, '(')
 
-            '''
-                Se o caractére atual é um ')', avança um caratére
-                e retorna um Token do tipo RPAREN, com o valor '('.
-            '''
             if self.current_char == ')':
+                '''
+                    Se o caractére atual é um ')', avança um caratére
+                    e retorna um Token do tipo RPAREN, com o valor '('.
+                '''
                 self.advance()
                 return Token(RPAREN, ')')
 
-            '''
-                Se o caractére atual é um ':', avança um caratére
-                e retorna um Token do tipo COLON, com o valor ':'.
-            '''
             if self.current_char == ':':
+                '''
+                    Se o caractére atual é um ':', avança um caratére
+                    e retorna um Token do tipo COLON, com o valor ':'.
+                '''
                 self.advance()
                 return Token(COLON, ':')
 
-            '''
-                Se o caractére atual é um ' ' e a posição atual de
-                leitura é zero (o que difere do primeiro IF), ou seja,
-                está no início da linha, avança um caratére, e
-                retorna um Token do tipo SPACE, com o valor ' '.
-            '''
             if self.current_char.isspace() and self.pos == 0:
+                '''
+                    Se o caractére atual é um ' ' e a posição atual de
+                    leitura é zero (o que difere do primeiro IF), ou seja,
+                    está no início da linha, avança um caratére, e
+                    retorna um Token do tipo SPACE, com o valor ' '.
+                '''
                 self.advance()
                 return Token(SPACE, ' ')
 
@@ -303,34 +303,34 @@ class Interpreter(object):
         # Captura qual o token atual
         token = self.current_token
         
-        '''
-            Se o Token capturado for uma WORD
-            é armazenado seu valor e retornado.
-        '''
         if token.type == WORD:
+            '''
+                Se o Token capturado for uma WORD
+                é armazenado seu valor e retornado.
+            '''
             argument = token.value
             self.eat(WORD)
             return argument
 
-        '''
-            Se o Token capturado for um LPAREN
-            é chamado novamente 'argument()' afim de que
-            caso o argumento esta entre vários parênteses, 
-            como ((((k)))). Então, como a função é chamada
-            recursivamete e ignorando os parênteses, ao fim, 
-            apenas o 'k' é retornando.
-        '''
         elif token.type == LPAREN:
+            '''
+                Se o Token capturado for um LPAREN
+                é chamado novamente 'argument()' afim de que
+                caso o argumento esta entre vários parênteses, 
+                como ((((k)))). Então, como a função é chamada
+                recursivamete e ignorando os parênteses, ao fim, 
+                apenas o 'k' é retornando.
+            '''
             self.eat(LPAREN)
             result = self.argument()
             self.eat(RPAREN)
             return result
 
-        '''
-            Se o Token capturado for EOF, então quer dizer que não
-            há argumento e um caratére vazio ('') é retornado.
-        '''
         elif token.type == EOF:
+            '''
+                Se o Token capturado for EOF, então quer dizer que não
+                há argumento e um caratére vazio ('') é retornado.
+            '''
             return ''
 
 
@@ -339,20 +339,20 @@ class Interpreter(object):
         Captura o argumento após capturar-se o label.
     '''
     def mnemonic(self):
-        '''
-            Se o Token capturado for uma WORD
-            é armazenado seu valor e retornado.
-        '''
         if self.current_token.type == WORD:
+            '''
+                Se o Token capturado for uma WORD
+                é armazenado seu valor e retornado.
+            '''
             mnemonic = self.current_token.value
             self.eat(WORD)
             return mnemonic.lower() # os caratéres do mnemônico são convertidos em lowercase
 
-        '''
-            Se o Token capturado não for uma WORD
-            um erro é retornado
-        '''
         else:
+            '''
+                Se o Token capturado não for uma WORD
+                um erro é retornado
+            '''
             self.error()
 
 
@@ -365,27 +365,27 @@ class Interpreter(object):
         _label = ''
 
 
-        '''
-            Se o Token atual for uma WORD
-            é armazenado seu valor e concatenado à
-            string do label.
-            Após isso, deve ser capturado um COLON ':'
-            e concatenado à string do label.
-            Depois, o label é retornado
-        '''
         if self.current_token.type == WORD:
+            '''
+                Se o Token atual for uma WORD
+                é armazenado seu valor e concatenado à
+                string do label.
+                Após isso, deve ser capturado um COLON ':'
+                e concatenado à string do label.
+                Depois, o label é retornado
+            '''
             _label += self.current_token.value
             self.eat(WORD)
             _label += self.current_token.value
             self.eat(COLON)
             return _label
 
-        '''
-            Se o Token atual for uma espaço (SPACE),
-            então não há label nesta linha, e portanto,
-            um caratére vazio é retornado.
-        '''
         elif self.current_token.type == SPACE:
+            '''
+                Se o Token atual for uma espaço (SPACE),
+                então não há label nesta linha, e portanto,
+                um caratére vazio é retornado.
+            '''
             self.eat(SPACE)
             return ''
 
