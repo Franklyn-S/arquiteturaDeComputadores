@@ -34,6 +34,24 @@ void carregar_microprograma(){
 	fclose(arquivo);
 }
 
+void carregar_operacao(const char *arquivo){
+	FILE *programa;
+	word tamanho;
+	byte tam_arquivo[4];
+
+	programa = fopen(arquivo, "rb");
+
+	if (programa != NULL){
+		fread(tam_arquivo, sizeof(byte), 4, programa);
+		memcpy(&tamanho, tam_arquivo, 4);
+
+		fread(RAM, sizeof(byte), 20, programa);
+		fread(&RAM[0x0401], sizeof(byte), tamanho - 20, programa);
+	}
+
+
+}
+
 void decode(microInstrucao instruction){
 	barramento_read = (instruction << 60) >> 60;
 	op_ula = (instruction << 40) >> 56;
@@ -228,39 +246,39 @@ void debug(){
 
 }
 
-void programa(){
-	// Auxiliar <- Dividendo
-	RAM[1] = 2;		RAM[2] = 25;	// ADD OPC,	[25]
-	RAM[3] = 6;		RAM[4] = 28;	// MOV OPC,	[28]
-	RAM[5] = 13;	RAM[6] = 25;	// SUB OPC,	[25]
+// void programa(){
+// 	// Auxiliar <- Dividendo
+// 	RAM[1] = 2;		RAM[2] = 25;	// ADD OPC,	[25]
+// 	RAM[3] = 6;		RAM[4] = 28;	// MOV OPC,	[28]
+// 	RAM[5] = 13;	RAM[6] = 25;	// SUB OPC,	[25]
 
-	// LOOP
-	RAM[7] = 2;		RAM[8] = 28;	// ADD OPC,	[28] 
-	RAM[9] = 11;	RAM[10] = 27;	// JZ OPC,	[27]
+// 	// LOOP
+// 	RAM[7] = 2;		RAM[8] = 28;	// ADD OPC,	[28] 
+// 	RAM[9] = 11;	RAM[10] = 27;	// JZ OPC,	[27]
 
-	// Dividendo <- Dividendo - Divisor
-	RAM[11] = 13;	RAM[12] = 26;	// SUB OPC,	[26]
-	RAM[13] = 6;	RAM[14] = 28;	// MOV OPC,	[28]
-	RAM[15] = 13;	RAM[16] = 28;	// SUB OPC,	[28]
+// 	// Dividendo <- Dividendo - Divisor
+// 	RAM[11] = 13;	RAM[12] = 26;	// SUB OPC,	[26]
+// 	RAM[13] = 6;	RAM[14] = 28;	// MOV OPC,	[28]
+// 	RAM[15] = 13;	RAM[16] = 28;	// SUB OPC,	[28]
 
-	// Quociente ++
-	RAM[17] = 2;	RAM[18] = 27;	// ADD OPC,	[27]
-	RAM[19] = 2;	RAM[20] = 29;	// ADD OPC,	[29]
-	RAM[21] = 6;	RAM[22] = 27;	// MOV OPC,	[27]
-	RAM[23] = 13;	RAM[24] = 27;	// SUB OPC,	[27]
+// 	// Quociente ++
+// 	RAM[17] = 2;	RAM[18] = 27;	// ADD OPC,	[27]
+// 	RAM[19] = 2;	RAM[20] = 29;	// ADD OPC,	[29]
+// 	RAM[21] = 6;	RAM[22] = 27;	// MOV OPC,	[27]
+// 	RAM[23] = 13;	RAM[24] = 27;	// SUB OPC,	[27]
 
-	// GOTO
-	RAM[25] = 9;	RAM[26] = 7;	// GOTO OPC, [7]
-	RAM[27] = 9;	RAM[28] = 27;	// GOTO OPC, [27]
+// 	// GOTO
+// 	RAM[25] = 9;	RAM[26] = 7;	// GOTO OPC, [7]
+// 	RAM[27] = 9;	RAM[28] = 27;	// GOTO OPC, [27]
 
-	// Variáveis
+// 	// Variáveis
 
-	RAM[25*4] = 24;	// Dividendo
-	RAM[26*4] = 6;	// Divisor
-	RAM[27*4] = 0;	// Quociente
-	RAM[28*4] = 0;	// Auxiliar
-	RAM[29*4] = 1;	// Mais um
-}
+// 	RAM[25*4] = 24;	// Dividendo
+// 	RAM[26*4] = 6;	// Divisor
+// 	RAM[27*4] = 0;	// Quociente
+// 	RAM[28*4] = 0;	// Auxiliar
+// 	RAM[29*4] = 1;	// Mais um
+// }
 
 void firmware(){
 	microPrograma[0] = 0b000000000100001101010000001000010001; //PC <- PC + 1; FETCH; GOTO MBR;
@@ -296,6 +314,7 @@ void firmware(){
 int main(){
 	
 	carregar_microprograma();
+	carregar_operacao("prog.exe");
 	
 	// PROGRAMA
 	//programa();
@@ -306,7 +325,7 @@ int main(){
     while(1){
 
     	debug();
-
+    	
 		mir = microPrograma[mpc];
 
 		decode(mir);
