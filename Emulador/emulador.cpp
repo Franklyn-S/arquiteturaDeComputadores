@@ -183,6 +183,7 @@ void dec2bin(int decimal){
 void debug(){
 	system("clear");
 	int j = 0;
+	//Esse for percorre a RAM a partir da posição que está no lv até a posição que está no sp
 	for(word i = lv;i <= sp;i++){
 		dec2bin(RAM[i]);
 		printf(" | %u | Variável %d\n", RAM[i],j);
