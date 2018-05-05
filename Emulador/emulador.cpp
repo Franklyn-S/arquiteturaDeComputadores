@@ -182,6 +182,12 @@ void dec2bin(int decimal){
 
 void debug(){
 	system("clear");
+	int j = 0;
+	for(word i = lv;i <= sp;i++){
+		dec2bin(RAM[i]);
+		printf(" | %u | Variável %d\n", RAM[i],j);
+		j++;
+	}
 
 	// MPC
 	dec2bin(mpc);
