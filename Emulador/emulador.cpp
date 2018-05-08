@@ -215,7 +215,6 @@ void debug() {
 	int j = 0;
 	//Esse for percorre a RAM a partir da posição que está no lv até a posição que está no sp
 
-	cout << "==================== PILHA =====================" << endl;
 	if(lv && sp){
 		cout << "╔════════════════════════════════════════════════════════════════╗" << endl;
 		cout << "║                              PILHA                             ║	" << endl;
@@ -244,77 +243,77 @@ void debug() {
 	dec2bin(mpc);
 	printf(" │ ");
 	center(mpc, 14);
-	cout << " │ MPC  ║" << endl;
+	cout << " │ MPC ║" << endl;
 
 	// Registrador MBR
 	printf("║");
 	dec2bin(mbr);
 	printf(" │ ");
 	center(mbr, 14);
-	cout << " │ MBR  ║" << endl;
+	cout << " │ MBR ║" << endl;
 
 	// Registrador MAR
 	printf("║");
 	dec2bin(mar);
 	printf(" │ ");
 	center(mar, 14);
-	cout << " │ MAR  ║" << endl;
+	cout << " │ MAR ║" << endl;
 
 	// Registrador MDR
 	printf("║");
 	dec2bin(mdr);
 	printf(" │ ");
 	center(mdr, 14);
-	cout << " │ MDR  ║" << endl;
+	cout << " │ MDR ║" << endl;
 
 	// Registrador PC
 	printf("║");
 	dec2bin(pc);
 	printf(" │ ");
 	center(pc, 14);
-	cout << " │  PC  ║" << endl;
+	cout << " │  PC ║" << endl;
 
 	// Registrador SP
 	printf("║");
 	dec2bin(sp);
 	printf(" │ ");
 	center(sp, 14);
-	cout << " │  SP  ║" << endl;
+	cout << " │  SP ║" << endl;
 
 	// Registrador LV
 	printf("║");
 	dec2bin(lv);
 	printf(" │ ");
 	center(lv, 14);
-	cout << " │  LV  ║" << endl;
+	cout << " │  LV ║" << endl;
 
 	// Registrador CPP
 	printf("║");
 	dec2bin(cpp);
 	printf(" │ ");
 	center(cpp, 14);
-	cout << " │ CPP  ║" << endl;
+	cout << " │ CPP ║" << endl;
 
 	// Registrador TOS
 	printf("║");
 	dec2bin(tos);
 	printf(" │ ");
 	center(tos, 14);
-	cout << " │ TOS  ║" << endl;
+	cout << " │ TOS ║" << endl;
 
 	// Registrador OPC
 	printf("║");
 	dec2bin(opc);
 	printf(" │ ");
 	center(opc, 14);
-	cout << " │ OPC  ║" << endl;
+	cout << " │ OPC ║" << endl;
 
 	// Registrador H
 	printf("║");
 	dec2bin(h);
 	printf(" │ ");
 	center(h, 14);
-	cout << " │  H   ║" << endl;
+	cout << " │  H  ║" << endl;
 
 	cout << "╚═══════════════════════════════════════════════════════════════╝" << endl;
 	printf("\n\n");
