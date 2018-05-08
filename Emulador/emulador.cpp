@@ -25,27 +25,27 @@ microInstrucao microPrograma[512];                // Vetor com as micro-instruç
 microInstrucao mir;
 
 //Carrega todo o firmeware do arquivo microprog.rom.
-void carregar_microprograma(){
+void carregar_microprograma() {
 	FILE *arquivo;
-	arquivo = fopen("microprog.rom","rb");
+	arquivo = fopen("microprog.rom", "rb");
 
 	if(arquivo == NULL) {
 		printf("Não foi possível abrir o arquivo");
 		exit(1);
 	}
-	fread(microPrograma,sizeof(microInstrucao),512,arquivo);
+	fread(microPrograma, sizeof(microInstrucao), 512, arquivo);
 	fclose(arquivo);
 }
 
 //Carrega na memória as operações correspondetes ao assembly.
-void carregar_operacao(const char *arquivo){
+void carregar_operacao(const char *arquivo) {
 	FILE *programa;
 	word tamanho;
 	byte tam_arquivo[4];
 
 	programa = fopen(arquivo, "rb");
 
-	if (programa != NULL){
+	if (programa != NULL) {
 		fread(tam_arquivo, sizeof(byte), 4, programa);
 		memcpy(&tamanho, tam_arquivo, 4);
 
@@ -55,7 +55,7 @@ void carregar_operacao(const char *arquivo){
 }
 
 //Decodifica as instruções mandadas.
-void decode(microInstrucao instruction){
+void decode(microInstrucao instruction) {
 	barramento_read = (instruction << 60) >> 60;
 	op_ula = (instruction << 40) >> 56;
 	barramento_write = (instruction << 48) >> 55;
@@ -66,8 +66,8 @@ void decode(microInstrucao instruction){
 }
 
 
-void ler_registrador(byte ender){
-    switch(ender){
+void ler_registrador(byte ender) {
+    switch (ender) {
         case 0: bB = mdr; 	break;
         case 1: bB = pc; 	break;
         case 2: bB = mbr; 	break;
@@ -87,27 +87,27 @@ void ler_registrador(byte ender){
 }
 
 
-void gravar_registrador(word ender){
-	if(ender & 1) mar = bC;		//... 0 0000 0001
-	if(ender & 2) mdr = bC;		//... 0 0000 0010
-	if(ender & 4) pc = bC; 		//... 0 0000 0100
-	if(ender & 8) sp = bC;		//... 0 0000 1000
-	if(ender & 16) lv = bC;		//... 0 0001 0000
-	if(ender & 32) cpp = bC; 	//... 0 0010 0000 
-	if(ender & 64) tos = bC;	//... 0 0100 0000
-	if(ender & 128) opc = bC;	//... 0 1000 0000
-	if(ender & 256) h = bC;		//... 1 0000 0000
+void gravar_registrador(word ender) {
+	if (ender & 1) mar = bC;	//... 0 0000 0001
+	if (ender & 2) mdr = bC;	//... 0 0000 0010
+	if (ender & 4) pc = bC; 	//... 0 0000 0100
+	if (ender & 8) sp = bC;		//... 0 0000 1000
+	if (ender & 16) lv = bC;	//... 0 0001 0000
+	if (ender & 32) cpp = bC; 	//... 0 0010 0000 
+	if (ender & 64) tos = bC;	//... 0 0100 0000
+	if (ender & 128) opc = bC;	//... 0 1000 0000
+	if (ender & 256) h = bC;	//... 1 0000 0000
 }
 
 
-void ula(byte operacao){
+void ula(byte operacao) {
 	
 	bA = h;
 
 	byte opUla  = (operacao << 2) >> 2;  // Operação da ULA que trabalha com 6 bits
 	byte desloc = operacao >> 6;         // Operação do deslocador que trabalha com 2 bits
 
-	switch(opUla){
+	switch (opUla) {
 		case 12: bC = bA & bB;		break;
 		case 16: bC = 0;			break;
 		case 20: bC = bB;			break;
@@ -129,17 +129,17 @@ void ula(byte operacao){
 
 
 	// Verifica se a operação da ULA retorna 0. Retorno usado no JAM
-	if (bC == 0){
+	if (bC == 0) {
 		N = 0;
 		Z = 1;
 
-	}else{
+	} else {
 		N = 1;
 		Z = 0;
 	}
 
 	// Operação de deslocamento
-	switch(desloc){
+	switch (desloc) {
 		case 0:					break;
 		case 1: bC = bC >> 1; 	break;
 		case 2: bC = bC << 8; 	break;
@@ -148,7 +148,7 @@ void ula(byte operacao){
 }
 
 
-void next_function(word next, int jam){
+void next_function(word next, int jam) {
 
 	if (jam == 0)	mpc = next;				// Próxima instrução
 	if (jam == 1)	mpc = next | (Z<<8);	// Pula quando bC = 0
@@ -156,8 +156,8 @@ void next_function(word next, int jam){
 	if (jam == 4)	mpc = next | mbr;		// Pulo da memória
 }
 
-void memory(int op_memory){
-	switch(op_memory){
+void memory(int op_memory) {
+	switch (op_memory) {
 		case 1:	mbr = RAM[pc];                break;	// Fetch;
 		case 2: memcpy(&mdr, &RAM[mar*4], 4); break;	// Read
 		case 4: memcpy(&RAM[mar*4], &mdr, 4); break;	// Write
@@ -165,19 +165,19 @@ void memory(int op_memory){
 	}
 }
 
-void dec2bin(int decimal){
+void dec2bin(int decimal) {
     
     int aux;
     for (aux = 35; aux >= 0; aux--) {
 
-    	if(aux % 9 == 0){
+    	if(aux % 9 == 0) {
     		bin[aux] = ' ';
 
-    	}else if (decimal % 2 == 0) {
+    	} else if (decimal % 2 == 0) {
             bin[aux] = '0';
             decimal /= 2;
 
-        }else {
+        } else {
             bin[aux] = '1';
             decimal /= 2;
         }
@@ -186,17 +186,20 @@ void dec2bin(int decimal){
 }
 
 
-void debug(){
+void debug() {
 	system("clear");
 	int j = 0;
 	//Esse for percorre a RAM a partir da posição que está no lv até a posição que está no sp
 
 	cout << "==================== PILHA =====================" << endl;
-	for(word i = lv;i <= sp;i++){
-		dec2bin(RAM[i]);
-		printf(" | %u | Variável %d\n", RAM[i],j);
+
+	for (word i = lv*4; i <= sp*4; i += 4) {
+		byte aux = (RAM[i] & 0x000000FF) | ((RAM[i+1] << 8) & 0x0000FF00) | ((RAM[i+2] << 16) & 0x00FF0000) | ((RAM[i+3] << 24) & 0xFF000000);
+		dec2bin(aux);
+		printf(" | %u | Variável %d\n", aux, j);
 		j++;
 	}
+
 	cout << endl;
 
 	cout << "================= REGISTRADORES ================" << endl;
@@ -252,12 +255,12 @@ void debug(){
 	printf("%u | Barramento C\n", bC);
 }
 
-int main(){
+int main() {
 	
 	carregar_microprograma();
 	carregar_operacao("prog.exe");
 	
-    while(1){
+    while(1) {
 
     	debug();
     	
@@ -278,5 +281,5 @@ int main(){
 		getchar();
 	}
 
-return 0;
+	return 0;
 }
