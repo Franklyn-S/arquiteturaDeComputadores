@@ -250,14 +250,6 @@ void debug(){
 	printf("%u | Barramento A\n", bA);
 	printf("%u | Barramento B\n", bB);
 	printf("%u | Barramento C\n", bC);
-
-	printf("\n\n");
-	
-	cout << "========== VARIÁVEIS ==========" << endl;
-	printf("Dividendo: %u\n", RAM[25*4]);
-	printf("Divisor: %u\n", RAM[26*4]);
-	printf("Quociente: %u\n", RAM[27*4]);
-	printf("Auxiliar: %u\n", RAM[28*4]);
 }
 
 int main(){
