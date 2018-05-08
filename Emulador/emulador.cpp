@@ -1,9 +1,21 @@
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 #include <cstdio>
 
 using namespace std;
+
+namespace patch {
+    template < typename T > std::string to_string( const T& n )
+    {
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str() ;
+    }
+}
+
 
 typedef unsigned int word;                 // 32 bits.
 typedef unsigned char byte;                // 8 bits.
@@ -182,84 +194,150 @@ void dec2bin(int decimal) {
             decimal /= 2;
         }
     }
+
 	printf("%s", bin);
 }
 
+void center(int num, int length) {
+	string str = patch::to_string(num);
+	int len = str.length() - 1;
+	int left = (int)(length - len)/2;
+	char fill[left+1];
+	for (int i = 0; i < left; i++)
+	fill[i] = ' ';
+	fill[left] = '\0';
+	cout << fill << ' ' << str << fill << (len % 2 ? "  " : " ");
+}
 
 void debug() {
+
 	system("clear");
 	int j = 0;
 	//Esse for percorre a RAM a partir da posição que está no lv até a posição que está no sp
 
-	cout << "==================== PILHA =====================" << endl;
 	if(lv && sp){
+		cout << "╔════════════════════════════════════════════════════════════════╗" << endl;
+		cout << "║                              PILHA                             ║	" << endl;
+		cout << "╟────────────────────────────────────────────────────────────────╢	" << endl;
+
 		for (word i = lv*4; i <= sp*4; i += 4) {
 			byte aux = (RAM[i] & 0x000000FF) | ((RAM[i+1] << 8) & 0x0000FF00) | ((RAM[i+2] << 16) & 0x00FF0000) | ((RAM[i+3] << 24) & 0xFF000000);
+			printf("║");
 			dec2bin(aux);
-			printf(" | %u | Variável %d\n", aux, j);
+			cout << " │ ";
+			center(aux, 8);
+			cout << " │ Variável " << j << " ║" << endl;
 			j++;
 		}
+
+		cout << "╚════════════════════════════════════════════════════════════════╝" << endl;
 	}
 
 	cout << endl;
 
-	cout << "================= REGISTRADORES ================" << endl;
+	cout << "╔═══════════════════════════════════════════════════════════════╗" << endl;
+	cout << "║                         REGISTRADORES                         ║	" << endl;
+	cout << "╟───────────────────────────────────────────────────────────────╢	" << endl;
 	// MPC
+	printf("║");
 	dec2bin(mpc);
-	printf(" | %u | MPC\n\n", mpc);
+	printf(" │ ");
+	center(mpc, 14);
+	cout << " │ MPC  ║" << endl;
 
 	// Registrador MBR
+	printf("║");
 	dec2bin(mbr);
-	printf(" | %u | MBR\n", mbr);
+	printf(" │ ");
+	center(mbr, 14);
+	cout << " │ MBR  ║" << endl;
 
 	// Registrador MAR
+	printf("║");
 	dec2bin(mar);
-	printf(" | %u | MAR\n", mar);
+	printf(" │ ");
+	center(mar, 14);
+	cout << " │ MAR  ║" << endl;
 
 	// Registrador MDR
+	printf("║");
 	dec2bin(mdr);
-	printf(" | %u | MDR\n", mdr);
+	printf(" │ ");
+	center(mdr, 14);
+	cout << " │ MDR  ║" << endl;
 
 	// Registrador PC
+	printf("║");
 	dec2bin(pc);
-	printf(" | %u | PC\n", pc);
+	printf(" │ ");
+	center(pc, 14);
+	cout << " │  PC  ║" << endl;
 
 	// Registrador SP
+	printf("║");
 	dec2bin(sp);
-	printf(" | %u | SP\n", sp);
+	printf(" │ ");
+	center(sp, 14);
+	cout << " │  SP  ║" << endl;
 
 	// Registrador LV
+	printf("║");
 	dec2bin(lv);
-	printf(" | %u | LV\n", lv);
+	printf(" │ ");
+	center(lv, 14);
+	cout << " │  LV  ║" << endl;
 
 	// Registrador CPP
+	printf("║");
 	dec2bin(cpp);
-	printf(" | %u | CPP\n", cpp);
+	printf(" │ ");
+	center(cpp, 14);
+	cout << " │ CPP  ║" << endl;
 
 	// Registrador TOS
+	printf("║");
 	dec2bin(tos);
-	printf(" | %u | TOS\n", tos);
+	printf(" │ ");
+	center(tos, 14);
+	cout << " │ TOS  ║" << endl;
 
 	// Registrador OPC
+	printf("║");
 	dec2bin(opc);
-	printf(" | %u | OPC\n", opc);
+	printf(" │ ");
+	center(opc, 14);
+	cout << " │ OPC  ║" << endl;
 
 	// Registrador H
+	printf("║");
 	dec2bin(h);
-	printf(" | %u | H\n", h);
+	printf(" │ ");
+	center(h, 14);
+	cout << " │  H   ║" << endl;
 
+	cout << "╚═══════════════════════════════════════════════════════════════╝" << endl;
 	printf("\n\n");
 	
-	cout << "========== BARRAMENTOS ==========" << endl;
-	printf("%u | Barramento A\n", bA);
-	printf("%u | Barramento B\n", bB);
-	printf("%u | Barramento C\n", bC);
+	cout << "╔═══════════════════════════════════════════════════════════════╗" << endl;
+	cout << "║                          BARRAMENTOS                          ║	" << endl;
+	cout << "╟───────────────────────────────────────────────────────────────╢	" << endl;
+	printf("║");
+	center(bA, 44);
+	cout << " │ Barramento A ║" << endl;
+	printf("║");
+	center(bB, 44);
+	cout << " │ Barramento B ║" << endl;
+	printf("║");
+	center(bC, 44);
+	cout << " │ Barramento C ║" << endl;
+
+	cout << "╚═══════════════════════════════════════════════════════════════╝" << endl;
 }
 
 int main() {
 	
 	carregar_microprograma();
-	carregar_operacao("../Assembler/prog.exe");
+	carregar_operacao("prog.exe");
 	
     while(1) {
 
