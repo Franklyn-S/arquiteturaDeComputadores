@@ -20,7 +20,7 @@ word mar = 0, mdr = 0, pc = 0, sp = 0, lv = 0, cpp = 0, tos = 0, opc = 0, h = 0,
 int jam, op_memory;
 char bin[36];                                     // Vetor auxiliar para mostrar na tela o valor binário
 
-byte RAM[16*1024];                                // Memória RAM de 16 Mega Bytes.
+byte RAM[16*1024*1024];                           // Memória RAM de 16 Mega Bytes.
 microInstrucao microPrograma[512];                // Vetor com as micro-instruções
 microInstrucao mir;
 
@@ -192,12 +192,13 @@ void debug() {
 	//Esse for percorre a RAM a partir da posição que está no lv até a posição que está no sp
 
 	cout << "==================== PILHA =====================" << endl;
-
-	for (word i = lv*4; i <= sp*4; i += 4) {
-		byte aux = (RAM[i] & 0x000000FF) | ((RAM[i+1] << 8) & 0x0000FF00) | ((RAM[i+2] << 16) & 0x00FF0000) | ((RAM[i+3] << 24) & 0xFF000000);
-		dec2bin(aux);
-		printf(" | %u | Variável %d\n", aux, j);
-		j++;
+	if(lv && sp){
+		for (word i = lv*4; i <= sp*4; i += 4) {
+			byte aux = (RAM[i] & 0x000000FF) | ((RAM[i+1] << 8) & 0x0000FF00) | ((RAM[i+2] << 16) & 0x00FF0000) | ((RAM[i+3] << 24) & 0xFF000000);
+			dec2bin(aux);
+			printf(" | %u | Variável %d\n", aux, j);
+			j++;
+		}
 	}
 
 	cout << endl;
