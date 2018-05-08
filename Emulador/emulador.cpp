@@ -258,7 +258,7 @@ void debug() {
 int main() {
 	
 	carregar_microprograma();
-	carregar_operacao("prog.exe");
+	carregar_operacao("../Programas/prog.exe");
 	
     while(1) {
 
