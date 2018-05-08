@@ -140,7 +140,7 @@ class Lexer(object):
     '''
         Método advance:
         Avance um caracére na leitura por atributo text 
-        (linha atual do arquivo que está sendo lindo).
+        (linha atual do arquivo que está sendo lido).
     '''
     def advance(self):
         self.pos += 1
@@ -416,6 +416,22 @@ class Interpreter(object):
 
 '''
     Classe Mounter:
+    Classe responsável por:
+    - Ler o arquivo .ASM (Assembly)
+    - Exercutar o interpretador em cada linha
+    - Pegar a matriz resultado da interpretação e montar 
+      o binário (método 'mount')
+    - Escrever o binário em um outro arquivo
+
+    Parâmetros:
+    - cmds: Matriz em que as linha correspondem a cada
+            linha do arquivo assembly, e cada coluna
+            corresponde respectivamente ao label, mnmônico,
+            argumento 1, argumento 2.
+    - vars: Lista das variáveis utilizadas no programa.
+    - binary: bytearray responsável por armazenar todo o
+              binário a ser escrito no programa resultado
+              da montagem.
 '''
 class Mounter(object):
     def __init__(self):
@@ -423,17 +439,42 @@ class Mounter(object):
         self.vars = []
         self.binary = bytearray()
 
+    '''
+        Método get_mnemonics:
+        Retorna a lista dos mnemônicos utilizados
+        em ordem.
+    '''
     def get_mnemonics(self):
         return list(map(lambda x: x[1], self.cmds))
 
+    '''
+        Método get_vars:
+        Popula o parâmetro 'vars' com a lista das variáveis
+        utilizadas em ordem, aplicando a operação 'distinct',
+        ou seja, sem repetições.
+    '''
     def get_vars(self):
         for cmd in self.cmds:
-            if cmd[1] in ['iload']:
+            # Sabe que o argumento é uma variável quando este 
+            # é relacionado ao comando ILOAD
+            if cmd[1] in ['iload']: 
                 if cmd[2] not in self.vars:
                     self.vars.append(cmd[2])
         return self.vars
-    
+
+    '''
+        Método count_vars:
+        Retorna uma dicionário em que a chave é uma
+        variável utilizada no programa assembly
+        e o valor é o índice corresponde a sua
+        apariação. Logo, se, por exemplo, 'k' é a terceira
+        variável a aparecer no programa, o dicionário vai ser
+        {
+            'K': 3
+        }
+    '''
     def count_vars(self):
+        # Lista todas as variáveis com o método 'get_vars'
         vars_list = self.get_vars()
         vars_dic = {}
         count = 0;
@@ -441,29 +482,62 @@ class Mounter(object):
             vars_dic[var] = count
             count += 1
         return vars_dic
-        
+
+    '''
+        Método convert_labels_to_offset:
+        Responsável por substituir cada label como argumento
+        pela distância em bytes da sua aparição até sua
+        utilização como marcação do desvio.
+        É importante ressaltar que essa distância em
+        bytes também conta os bytes do próprio label.
+    '''
     def convert_labels_to_offset(self):
         count = 0
         gotos_dic = {}
         labels_dic = {}
+
+        '''
+            Primeiro loop: responsável por mapear, em um
+            primeiro dicionário, os labels (chave) com suas respectivas
+            distâncias em byte desde o início do programa (valor).
+            E por mapear em um segundo dicionário, os comandos que 
+            correspondem a um desvio (GOTO, IF_ICMPEQ), também com suas respectivas
+            distâncias em byte desde o início do programa (valor).
+        '''
         for i, cmd in enumerate(self.cmds):
             mnemonic = cmd[1]
             label = cmd[0]
-            count += mnemonics[mnemonic][1]
+            count += mnemonics[mnemonic][1] # Utilizado o tamanho do comando, valor presente no dicionário 'mnemonics'
             if mnemonic in ['goto', 'if_icmpeq']:
                 gotos_dic[i] = count
             if label != '':
                 labels_dic[label.strip(':')] = count - mnemonics[mnemonic][1] + 1
 
         converted_cmds = self.cmds
+
+        '''
+            Segundo loop: responsável por percorrer os comandos,
+            e substituir as aparições dos labels (como argumento)
+            pelo difenração da posição em bytes deste label (primeiro
+            dicionário, com a posição em byte do comando que o usa
+            (segundo dicionário).
+        '''
         for i, cmd in enumerate(self.cmds):
             mnemonic = cmd[1]
             if mnemonic in ['goto', 'if_icmpeq']:
                 label = cmd[2]
-                converted_cmds[i][2] = labels_dic[label] - gotos_dic[i] + 2
+                converted_cmds[i][2] = labels_dic[label] - gotos_dic[i] + 2 # Mais 2 referente ao próprio label
 
+        # Todas as modidicações atuam sobre o parâmetro 'cmds'
+        # Logo, ao final, este é atualizado
         self.cmds = converted_cmds
 
+    '''
+        Método replace_vars:
+        Substitui a ocorrência das variavéis utilizadas
+        com sua posições calculadas com a chamada do método
+        'count_vars'.
+    '''
     def replace_vars(self):
         replaced_cmds = self.cmds;
         counted_vars = self.count_vars()
@@ -471,18 +545,43 @@ class Mounter(object):
             arg = cmd[2]
             if arg in counted_vars:
                 replaced_cmds[i][2] = int(counted_vars[arg])
+
+        # Todas as modidicações atuam sobre o parâmetro 'cmds'
+        # Logo, ao final, este é atualizado
         self.cmds = replaced_cmds
 
+    '''
+        Método replace_mnemonics:
+        Substitui a ocorrência dos mnemônicos por seus
+        respectivos códigos binários.
+        Informação presente no dicionário 'mnemonics'
+        'count_vars'.
+    '''
     def replace_mnemonics(self):
         prev_cmds = self.cmds;
         for i, cmd in enumerate(prev_cmds):
             self.cmds[i][1] = mnemonics[cmd[1]][0]
 
+    '''
+        Método mount:
+        Responsável por:
+        - Substituir as váriáveis pelo índice de sua ocorrência (método 'replace vars')
+        - Converter os labels por sua posição (método 'convert_labels_to_offset')
+        - Converter os mnemônicos por seus binário (método 'replace_mnemonicos')
+    '''
     def mount(self):
         self.replace_vars()
         self.convert_labels_to_offset()
         self.replace_mnemonics()
 
+    '''
+        Método read_file:
+        Lê o arquivo assembly passado como argumento
+        e aplica o Interpretador a cada linha do programa,
+        armazenando o resultado do seu método 'cmd'
+        em uma lista de comandos, formando assim a matriz
+        utilizada no escopo dessa classe.        
+    '''
     def read_file(self, file_name):
         asm = open(file_name, 'r')
 
@@ -496,36 +595,62 @@ class Mounter(object):
         asm.close()
 
         self.cmds = cmds
-        
+
+    '''
+        Método write_file:
+        Dados os comandos já separados e interpretados,
+        é chamado o método 'mount' para mmontar o programa.
+        Daí o binário é formado e escrito no arquivo binário
+        passado como parâmetro.
+    '''
     def write_file(self, file_name):
         self.mount()
         
+        '''
+            Função para, dado um número inteiro, 
+            ser retornado uma lista de quatro elementos,
+            que reprentam em ordem 'little endia', os bytes
+            desse número.
+        '''
         def split_bytes(number):
-            y1, y2, y3, y4 = (number & 0xFFFFFFFF).to_bytes(4, 'little')
-            return [y1, y2, y3, y4]
-
+            b1, b2, b3, b4 = (number & 0xFFFFFFFF).to_bytes(4, 'little')
+            return [b1, b2, b3, b4]
+        
+        '''
+            Função para, dado uma lista de bytes, ela adicione
+            cada byte ao byte array do parâmetro 'binary'.
+        '''
         def append_list_to_bytearray(list):
             for b in list:
                 self.binary.append(b)
 
-        vars_num = len(self.vars)
+        vars_num = len(self.vars) # Captura a quantidade de variáveis
 
-        last_bytes = split_bytes(0x1001 + vars_num)
+        # Separa os bytes resultante da soma de 0x1001
+        # com a quantidade de variáveis, e armazena.
+        last_bytes = split_bytes(0x1001 + vars_num) 
 
+        # Inicializam do programa
         program_init = [
             0x00, 0x73, 0x00, 0x00,
             0x06, 0x00, 0x00, 0x00,
             0x01, 0x10, 0x00, 0x00,
             0x00, 0x04, 0x00, 0x00,
-            *last_bytes
+            *last_bytes # Usa o splat operador para adicionar os últimos bytes ao vetor
         ]
 
+        # Cria um bytearray apenas para o programa
         program = bytearray()
+
+        # Pecorre cada comando do programa do programa já montado
+        # e adiciona o binário do programa ao bytearray acima declarado
         for cmd in self.cmds:
             for i, byte in enumerate(cmd[1:]):
                 if byte != '' and byte != " ":
                     byte = int(byte)
                     if i >= 1 and size_per_cmd[cmd[1]] > 2:
+                        # O trecho abaixo pega o número de dois bytes,
+                        # e separa seus bytes na ordem 'little endiam'.
                         rgt = (byte << 8) >> 8
                         lft = byte >> 8
                         program.append(lft)
@@ -533,18 +658,29 @@ class Mounter(object):
                     else:
                         program.append(byte)
 
+        # Captura o tamanho do programa, pegando o tamanho
+        # em bytes do bytearray 'program' e somando com
+        # os 20 bytes da inicialização
         program_length = split_bytes(len(program) + 20)
+
+        # Adiciona o tamanho do programa ao binário principal
         append_list_to_bytearray(program_length)
+        # Após isso, adiciona a inicialização do programa
         append_list_to_bytearray(program_init)
+        # E, por último, adiciona o próprio programa
         append_list_to_bytearray(program)
         
+        # Escreve o binário principal no arquivo binário
         binary = open(file_name, 'wb')
         binary.write(self.binary)
         binary.close()
 
 def main():
+    # Intância a classe Mounter
     mounter = Mounter()
+    # Informa o arquivo a ser lido
     mounter.read_file('assembly_ex2.asm')
+    # E o arquivo a ser escrito
     mounter.write_file('binary_ex2.exe')
 
 if __name__ == '__main__':
