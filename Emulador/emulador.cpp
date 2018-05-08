@@ -29,7 +29,7 @@ void carregar_microprograma() {
 	FILE *arquivo;
 	arquivo = fopen("microprog.rom", "rb");
 
-	if(arquivo == NULL) {
+	if (arquivo == NULL) {
 		printf("Não foi possível abrir o arquivo");
 		exit(1);
 	}
@@ -170,7 +170,7 @@ void dec2bin(int decimal) {
     int aux;
     for (aux = 35; aux >= 0; aux--) {
 
-    	if(aux % 9 == 0) {
+    	if (aux % 9 == 0) {
     		bin[aux] = ' ';
 
     	} else if (decimal % 2 == 0) {
@@ -192,6 +192,7 @@ void debug() {
 	//Esse for percorre a RAM a partir da posição que está no lv até a posição que está no sp
 
 	cout << "==================== PILHA =====================" << endl;
+<<<<<<< HEAD
 	if(lv && sp){
 		for (word i = lv*4; i <= sp*4; i += 4) {
 			byte aux = (RAM[i] & 0x000000FF) | ((RAM[i+1] << 8) & 0x0000FF00) | ((RAM[i+2] << 16) & 0x00FF0000) | ((RAM[i+3] << 24) & 0xFF000000);
