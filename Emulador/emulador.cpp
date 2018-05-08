@@ -3,6 +3,8 @@
 #include <cstring>
 #include <cstdio>
 
+using namespace std;
+
 typedef unsigned int word;                 // 32 bits.
 typedef unsigned char byte;                // 8 bits.
 typedef unsigned long int microInstrucao;  // 64 bits.
@@ -22,6 +24,7 @@ byte RAM[16*1024];                                // Memória RAM de 16 Mega Byt
 microInstrucao microPrograma[512];                // Vetor com as micro-instruções
 microInstrucao mir;
 
+//Carrega todo o firmeware do arquivo microprog.rom.
 void carregar_microprograma(){
 	FILE *arquivo;
 	arquivo = fopen("microprog.rom","rb");
@@ -34,6 +37,7 @@ void carregar_microprograma(){
 	fclose(arquivo);
 }
 
+//Carrega na memória as operações correspondetes ao assembly.
 void carregar_operacao(const char *arquivo){
 	FILE *programa;
 	word tamanho;
@@ -48,10 +52,9 @@ void carregar_operacao(const char *arquivo){
 		fread(RAM, sizeof(byte), 20, programa);
 		fread(&RAM[0x0401], sizeof(byte), tamanho - 20, programa);
 	}
-
-
 }
 
+//Decodifica as instruções mandadas.
 void decode(microInstrucao instruction){
 	barramento_read = (instruction << 60) >> 60;
 	op_ula = (instruction << 40) >> 56;
@@ -61,6 +64,7 @@ void decode(microInstrucao instruction){
 
 	op_memory = (instruction << 57) >> 61; //Operação de Memória. 3 bits (write, read, fetch)
 }
+
 
 void ler_registrador(byte ender){
     switch(ender){
@@ -81,6 +85,7 @@ void ler_registrador(byte ender){
         case 8: bB = opc; 	break;
     }
 }
+
 
 void gravar_registrador(word ender){
 	if(ender & 1) mar = bC;		//... 0 0000 0001
@@ -142,6 +147,7 @@ void ula(byte operacao){
 	}
 }
 
+
 void next_function(word next, int jam){
 
 	if (jam == 0)	mpc = next;				// Próxima instrução
@@ -182,7 +188,18 @@ void dec2bin(int decimal){
 
 void debug(){
 	system("clear");
+	int j = 0;
+	//Esse for percorre a RAM a partir da posição que está no lv até a posição que está no sp
 
+	cout << "==================== PILHA =====================" << endl;
+	for(word i = lv;i <= sp;i++){
+		dec2bin(RAM[i]);
+		printf(" | %u | Variável %d\n", RAM[i],j);
+		j++;
+	}
+	cout << endl;
+
+	cout << "================= REGISTRADORES ================" << endl;
 	// MPC
 	dec2bin(mpc);
 	printf(" | %u | MPC\n\n", mpc);
@@ -229,98 +246,24 @@ void debug(){
 
 	printf("\n\n");
 	
-	printf("Barramentos\n");
+	cout << "========== BARRAMENTOS ==========" << endl;
 	printf("%u | Barramento A\n", bA);
 	printf("%u | Barramento B\n", bB);
 	printf("%u | Barramento C\n", bC);
 
 	printf("\n\n");
 	
-	printf("Variáveis\n");
+	cout << "========== VARIÁVEIS ==========" << endl;
 	printf("Dividendo: %u\n", RAM[25*4]);
 	printf("Divisor: %u\n", RAM[26*4]);
 	printf("Quociente: %u\n", RAM[27*4]);
 	printf("Auxiliar: %u\n", RAM[28*4]);
-	
-
-
-}
-
-// void programa(){
-// 	// Auxiliar <- Dividendo
-// 	RAM[1] = 2;		RAM[2] = 25;	// ADD OPC,	[25]
-// 	RAM[3] = 6;		RAM[4] = 28;	// MOV OPC,	[28]
-// 	RAM[5] = 13;	RAM[6] = 25;	// SUB OPC,	[25]
-
-// 	// LOOP
-// 	RAM[7] = 2;		RAM[8] = 28;	// ADD OPC,	[28] 
-// 	RAM[9] = 11;	RAM[10] = 27;	// JZ OPC,	[27]
-
-// 	// Dividendo <- Dividendo - Divisor
-// 	RAM[11] = 13;	RAM[12] = 26;	// SUB OPC,	[26]
-// 	RAM[13] = 6;	RAM[14] = 28;	// MOV OPC,	[28]
-// 	RAM[15] = 13;	RAM[16] = 28;	// SUB OPC,	[28]
-
-// 	// Quociente ++
-// 	RAM[17] = 2;	RAM[18] = 27;	// ADD OPC,	[27]
-// 	RAM[19] = 2;	RAM[20] = 29;	// ADD OPC,	[29]
-// 	RAM[21] = 6;	RAM[22] = 27;	// MOV OPC,	[27]
-// 	RAM[23] = 13;	RAM[24] = 27;	// SUB OPC,	[27]
-
-// 	// GOTO
-// 	RAM[25] = 9;	RAM[26] = 7;	// GOTO OPC, [7]
-// 	RAM[27] = 9;	RAM[28] = 27;	// GOTO OPC, [27]
-
-// 	// Variáveis
-
-// 	RAM[25*4] = 24;	// Dividendo
-// 	RAM[26*4] = 6;	// Divisor
-// 	RAM[27*4] = 0;	// Quociente
-// 	RAM[28*4] = 0;	// Auxiliar
-// 	RAM[29*4] = 1;	// Mais um
-// }
-
-void firmware(){
-	microPrograma[0] = 0b000000000100001101010000001000010001; //PC <- PC + 1; FETCH; GOTO MBR;
-
-	//OPC = OPC + memory[word]; (Sintaxe assembly: ADD OPC, [END])
-	microPrograma[2] = 0b000000011000001101010000001000010001; //PC <- PC + 1; FETCH;
-	microPrograma[3] = 0b000000100000000101000000000010100010; //MAR <- MBR; READ;
-	microPrograma[4] = 0b000000101000000101001000000000000000; //H <- MDR;
-	microPrograma[5] = 0b000000000000001111000100000000001000; //OPC <- OPC + H; GOTO MAIN;
-
-	//memory[word] = OPC; (Sintaxe assembly: MOV OPC, [END])
-	microPrograma[6] = 0b000000111000001101010000001000010001; //PC <- PC + 1; FETCH;
-	microPrograma[7] = 0b000001000000000101000000000010000010; //MAR <- MBR;
-	microPrograma[8] = 0b000000000000000101000000000101001000; //MDR <- OPC; write; GOTO MAIN;
-
-	//goto endereco_comando_programa;(Sintaxe assembly: GOTO byte)
-	microPrograma[9]  = 0b000001010000001101010000001000010001; //PC <- PC + 1; FETCH;
-	microPrograma[10] = 0b000000000100000101000000001000010010; //PC <- MBR; FETCH; GOTO MBR;
-
-	//if OPC = 0 goto endereco_comando_programa else goto proxima_linha;(Sintaxe assembly: JZ OPC, byte)
-	microPrograma[11]  = 0b000001100001000101000100000000001000; //OPC <- OPC; IF ALU = 0 GOTO 268 (100001100) ELSE GOTO 12 (000001100);
-	microPrograma[12]  = 0b000000000000001101010000001000000001; //PC <- PC + 1; GOTO MAIN;
-	microPrograma[268] = 0b100001101000001101010000001000010001; //PC <- PC + 1; FETCH;
-	microPrograma[269] = 0b000000000100000101000000001000010010; //PC <- MBR; FETCH; GOTO MBR;
-
-	//OPC = OPC - memory[word]; (Sintaxe assembly: SUB OPC, [END])
-	microPrograma[13] = 0b000001110000001101010000001000010001; //PC <- PC + 1; FETCH;
-	microPrograma[14] = 0b000001111000000101000000000010100010; //MAR <- MBR; READ;
-	microPrograma[15] = 0b000010000000000101001000000000000000; //H <- MDR;
-	microPrograma[16] = 0b000000000000001111110100000000001000; //OPC <- OPC - H; GOTO MAIN;
 }
 
 int main(){
 	
 	carregar_microprograma();
 	carregar_operacao("prog.exe");
-	
-	// PROGRAMA
-	//programa();
-
-	// FIRMWARE
-	//firmware();
 	
     while(1){
 
@@ -341,7 +284,7 @@ int main(){
 		next_function(next, jam);
 
 		getchar();
-}
+	}
 
 return 0;
 }
