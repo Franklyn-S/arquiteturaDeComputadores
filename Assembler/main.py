@@ -679,9 +679,9 @@ def main():
     # Instancia a classe Mounter
     mounter = Mounter()
     # Informa o arquivo a ser lido
-    mounter.read_file('assembly_ex2.asm')
+    mounter.read_file('prog.asm')
     # E o arquivo a ser escrito
-    mounter.write_file('binary_ex2.exe')
+    mounter.write_file('../Programas/prog.exe')
 
 if __name__ == '__main__':
     main()
