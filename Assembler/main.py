@@ -424,10 +424,10 @@ class Interpreter(object):
     - Escrever o binário em um outro arquivo
 
     Parâmetros:
-    - cmds: Matriz em que as linha correspondem a cada
+    - cmds: Matriz em que as linhas correspondem a cada
             linha do arquivo assembly, e cada coluna
-            corresponde respectivamente ao label, mnmônico,
-            argumento 1, argumento 2.
+            corresponde respectivamente ao label, mnemônico,
+            argumento 1 e argumento 2.
     - vars: Lista das variáveis utilizadas no programa.
     - binary: bytearray responsável por armazenar todo o
               binário a ser escrito no programa resultado
@@ -467,7 +467,7 @@ class Mounter(object):
         Retorna uma dicionário em que a chave é uma
         variável utilizada no programa assembly
         e o valor é o índice corresponde a sua
-        apariação. Logo, se, por exemplo, 'k' é a terceira
+        aparição. Logo, se, por exemplo, 'k' é a terceira
         variável a aparecer no programa, o dicionário vai ser
         {
             'K': 3
@@ -507,7 +507,7 @@ class Mounter(object):
         for i, cmd in enumerate(self.cmds):
             mnemonic = cmd[1]
             label = cmd[0]
-            count += mnemonics[mnemonic][1] # Utilizado o tamanho do comando, valor presente no dicionário 'mnemonics'
+            count += mnemonics[mnemonic][1] # Utilizando o tamanho do comando, valor presente no dicionário 'mnemonics'
             if mnemonic in ['goto', 'if_icmpeq']:
                 gotos_dic[i] = count
             if label != '':
