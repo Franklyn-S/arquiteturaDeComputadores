@@ -676,7 +676,7 @@ class Mounter(object):
         binary.close()
 
 def main():
-    # Intância a classe Mounter
+    # Instancia a classe Mounter
     mounter = Mounter()
     # Informa o arquivo a ser lido
     mounter.read_file('assembly_ex2.asm')
