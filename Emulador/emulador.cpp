@@ -3,6 +3,8 @@
 #include <cstring>
 #include <cstdio>
 
+using namespace std;
+
 typedef unsigned int word;                 // 32 bits.
 typedef unsigned char byte;                // 8 bits.
 typedef unsigned long int microInstrucao;  // 64 bits.
@@ -22,6 +24,7 @@ byte RAM[16*1024];                                // Memória RAM de 16 Mega Byt
 microInstrucao microPrograma[512];                // Vetor com as micro-instruções
 microInstrucao mir;
 
+//Carrega todo o firmeware do arquivo microprog.rom.
 void carregar_microprograma(){
 	FILE *arquivo;
 	arquivo = fopen("microprog.rom","rb");
@@ -34,6 +37,7 @@ void carregar_microprograma(){
 	fclose(arquivo);
 }
 
+//Carrega na memória as operações correspondetes ao assembly.
 void carregar_operacao(const char *arquivo){
 	FILE *programa;
 	word tamanho;
@@ -48,10 +52,9 @@ void carregar_operacao(const char *arquivo){
 		fread(RAM, sizeof(byte), 20, programa);
 		fread(&RAM[0x0401], sizeof(byte), tamanho - 20, programa);
 	}
-
-
 }
 
+//Decodifica as instruções mandadas.
 void decode(microInstrucao instruction){
 	barramento_read = (instruction << 60) >> 60;
 	op_ula = (instruction << 40) >> 56;
@@ -61,6 +64,7 @@ void decode(microInstrucao instruction){
 
 	op_memory = (instruction << 57) >> 61; //Operação de Memória. 3 bits (write, read, fetch)
 }
+
 
 void ler_registrador(byte ender){
     switch(ender){
@@ -81,6 +85,7 @@ void ler_registrador(byte ender){
         case 8: bB = opc; 	break;
     }
 }
+
 
 void gravar_registrador(word ender){
 	if(ender & 1) mar = bC;		//... 0 0000 0001
@@ -142,6 +147,7 @@ void ula(byte operacao){
 	}
 }
 
+
 void next_function(word next, int jam){
 
 	if (jam == 0)	mpc = next;				// Próxima instrução
@@ -184,12 +190,16 @@ void debug(){
 	system("clear");
 	int j = 0;
 	//Esse for percorre a RAM a partir da posição que está no lv até a posição que está no sp
+
+	cout << "==================== PILHA =====================" << endl;
 	for(word i = lv;i <= sp;i++){
 		dec2bin(RAM[i]);
 		printf(" | %u | Variável %d\n", RAM[i],j);
 		j++;
 	}
+	cout << endl;
 
+	cout << "================= REGISTRADORES ================" << endl;
 	// MPC
 	dec2bin(mpc);
 	printf(" | %u | MPC\n\n", mpc);
@@ -236,21 +246,18 @@ void debug(){
 
 	printf("\n\n");
 	
-	printf("Barramentos\n");
+	cout << "========== BARRAMENTOS ==========" << endl;
 	printf("%u | Barramento A\n", bA);
 	printf("%u | Barramento B\n", bB);
 	printf("%u | Barramento C\n", bC);
 
 	printf("\n\n");
 	
-	printf("Variáveis\n");
+	cout << "========== VARIÁVEIS ==========" << endl;
 	printf("Dividendo: %u\n", RAM[25*4]);
 	printf("Divisor: %u\n", RAM[26*4]);
 	printf("Quociente: %u\n", RAM[27*4]);
 	printf("Auxiliar: %u\n", RAM[28*4]);
-	
-
-
 }
 
 int main(){
@@ -277,7 +284,7 @@ int main(){
 		next_function(next, jam);
 
 		getchar();
-}
+	}
 
 return 0;
 }
