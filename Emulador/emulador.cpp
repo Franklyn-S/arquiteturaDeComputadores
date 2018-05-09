@@ -212,11 +212,18 @@ void center(int num, int length) {
 void debug() {
 
 	system("clear");
+
+	cout << "╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮" << endl;
+	cout << "│                               IJVM                             │" << endl;
+	cout << "╰━┬━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┬━╯" << endl;
+
+	cout << "  │                                                            │  " << endl;
+
 	int j = 0;
 	//Esse for percorre a RAM a partir da posição que está no lv até a posição que está no sp
 
 	if(lv && sp){
-		cout << "╔════════════════════════════════════════════════════════════════╗" << endl;
+		cout << "╔═╧════════════════════════════════════════════════════════════╧═╗" << endl;
 		cout << "║                              PILHA                             ║	" << endl;
 		cout << "╟────────────────────────────────────────────────────────────────╢	" << endl;
 
@@ -230,108 +237,109 @@ void debug() {
 			j++;
 		}
 
-		cout << "╚════════════════════════════════════════════════════════════════╝" << endl;
+		cout << "╚═╤════════════════════════════════════════════════════════════╤═╝" << endl;
 	}
 
-	cout << endl;
+	cout << "  │                                                            │  " << endl;
 
-	cout << "╔═══════════════════════════════════════════════════════════════╗" << endl;
-	cout << "║                         REGISTRADORES                         ║	" << endl;
-	cout << "╟───────────────────────────────────────────────────────────────╢	" << endl;
+	cout << "╔═╧════════════════════════════════════════════════════════════╧═╗" << endl;
+	cout << "║                          REGISTRADORES                         ║	" << endl;
+	cout << "╟────────────────────────────────────────────────────────────────╢	" << endl;
 	// MPC
 	printf("║");
 	dec2bin(mpc);
 	printf(" │ ");
 	center(mpc, 14);
-	cout << " │ MPC ║" << endl;
+	cout << " │ MPC  ║" << endl;
 
 	// Registrador MBR
 	printf("║");
 	dec2bin(mbr);
 	printf(" │ ");
 	center(mbr, 14);
-	cout << " │ MBR ║" << endl;
+	cout << " │ MBR  ║" << endl;
 
 	// Registrador MAR
 	printf("║");
 	dec2bin(mar);
 	printf(" │ ");
 	center(mar, 14);
-	cout << " │ MAR ║" << endl;
+	cout << " │ MAR  ║" << endl;
 
 	// Registrador MDR
 	printf("║");
 	dec2bin(mdr);
 	printf(" │ ");
 	center(mdr, 14);
-	cout << " │ MDR ║" << endl;
+	cout << " │ MDR  ║" << endl;
 
 	// Registrador PC
 	printf("║");
 	dec2bin(pc);
 	printf(" │ ");
 	center(pc, 14);
-	cout << " │  PC ║" << endl;
+	cout << " │  PC  ║" << endl;
 
 	// Registrador SP
 	printf("║");
 	dec2bin(sp);
 	printf(" │ ");
 	center(sp, 14);
-	cout << " │  SP ║" << endl;
+	cout << " │  SP  ║" << endl;
 
 	// Registrador LV
 	printf("║");
 	dec2bin(lv);
 	printf(" │ ");
 	center(lv, 14);
-	cout << " │  LV ║" << endl;
+	cout << " │  LV  ║" << endl;
 
 	// Registrador CPP
 	printf("║");
 	dec2bin(cpp);
 	printf(" │ ");
 	center(cpp, 14);
-	cout << " │ CPP ║" << endl;
+	cout << " │ CPP  ║" << endl;
 
 	// Registrador TOS
 	printf("║");
 	dec2bin(tos);
 	printf(" │ ");
 	center(tos, 14);
-	cout << " │ TOS ║" << endl;
+	cout << " │ TOS  ║" << endl;
 
 	// Registrador OPC
 	printf("║");
 	dec2bin(opc);
 	printf(" │ ");
 	center(opc, 14);
-	cout << " │ OPC ║" << endl;
+	cout << " │ OPC  ║" << endl;
 
 	// Registrador H
 	printf("║");
 	dec2bin(h);
 	printf(" │ ");
 	center(h, 14);
-	cout << " │  H  ║" << endl;
+	cout << " │  H   ║" << endl;
 
-	cout << "╚═══════════════════════════════════════════════════════════════╝" << endl;
-	printf("\n\n");
+	cout << "╚═╤════════════════════════════════════════════════════════════╤═╝" << endl;
 	
-	cout << "╔═══════════════════════════════════════════════════════════════╗" << endl;
-	cout << "║                          BARRAMENTOS                          ║	" << endl;
-	cout << "╟───────────────────────────────────────────────────────────────╢	" << endl;
+	cout << "  │                                                            │  " << endl;
+	
+	cout << "╔═╧════════════════════════════════════════════════════════════╧═╗" << endl;
+	cout << "║                           BARRAMENTOS                          ║	" << endl;
+	cout << "╟────────────────────────────────────────────────────────────────╢	" << endl;
 	printf("║");
 	center(bA, 44);
-	cout << " │ Barramento A ║" << endl;
+	cout << " │ Barramento A  ║" << endl;
 	printf("║");
 	center(bB, 44);
-	cout << " │ Barramento B ║" << endl;
+	cout << " │ Barramento B  ║" << endl;
 	printf("║");
 	center(bC, 44);
-	cout << " │ Barramento C ║" << endl;
+	cout << " │ Barramento C  ║" << endl;
 
-	cout << "╚═══════════════════════════════════════════════════════════════╝" << endl;
+	cout << "╚════════════════════════════════════════════════════════════════╝" << endl;
 }
 
 int main() {
