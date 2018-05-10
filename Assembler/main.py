@@ -651,10 +651,9 @@ class Mounter(object):
                     if i >= 1 and size_per_cmd[cmd[1]] > 2:
                         # O trecho abaixo pega o número de dois bytes,
                         # e separa seus bytes na ordem 'little endiam'.
-                        rgt = (byte << 8) >> 8
-                        lft = byte >> 8
-                        program.append(lft)
+                        lft, rgt = (byte & 0xFFFF).to_bytes(2, 'little')
                         program.append(rgt)
+                        program.append(lft)
                     else:
                         program.append(byte)
 
@@ -681,7 +680,7 @@ def main():
     # Informa o arquivo a ser lido
     mounter.read_file('prog.asm')
     # E o arquivo a ser escrito
-    mounter.write_file('prog.exe')
+    mounter.write_file('prog2.exe')
 
 if __name__ == '__main__':
     main()
