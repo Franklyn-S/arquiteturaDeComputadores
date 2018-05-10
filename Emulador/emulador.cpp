@@ -364,8 +364,8 @@ int main(int argc, char const *argv[]) {
 
 		next_function(next, jam);
 
-		// getchar();
-		system("delay(1000)");
+		getchar();
+		//system("delay(1000)");
 	}
 
 	return 0;
