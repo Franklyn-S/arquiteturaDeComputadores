@@ -1,3 +1,4 @@
+import sys
 '''
     A lista abaixo refere-se a lista dos tipos de TOKENS que o assembler suporta
     Token é todo e qualquer conjunto de caracteres com significado semântico
@@ -678,9 +679,9 @@ def main():
     # Instancia a classe Mounter
     mounter = Mounter()
     # Informa o arquivo a ser lido
-    mounter.read_file('prog.asm')
+    mounter.read_file(sys.argv[1])
     # E o arquivo a ser escrito
-    mounter.write_file('prog.exe')
+    mounter.write_file(sys.argv[2])
 
 if __name__ == '__main__':
     main()
