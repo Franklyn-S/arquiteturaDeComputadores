@@ -342,10 +342,9 @@ void debug() {
 	cout << "╚════════════════════════════════════════════════════════════════╝" << endl;
 }
 
-int main() {
-	
+int main(int argc, char const *argv[]) {
 	carregar_microprograma();
-	carregar_operacao("../Assembler/prog.exe");
+	carregar_operacao(argv[1]);
 	
     while(1) {
 
@@ -365,7 +364,8 @@ int main() {
 
 		next_function(next, jam);
 
-		getchar();
+		// getchar();
+		system("delay(1000)");
 	}
 
 	return 0;
