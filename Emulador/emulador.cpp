@@ -228,7 +228,7 @@ void debug() {
 		cout << "╟────────────────────────────────────────────────────────────────╢	" << endl;
 
 		for (word i = lv*4; i <= sp*4; i += 4) {
-			byte aux = (RAM[i] & 0x000000FF) | ((RAM[i+1] << 8) & 0x0000FF00) | ((RAM[i+2] << 16) & 0x00FF0000) | ((RAM[i+3] << 24) & 0xFF000000);
+			word aux = (RAM[i] & 0x000000FF) | ((RAM[i+1] << 8) & 0x0000FF00) | ((RAM[i+2] << 16) & 0x00FF0000) | ((RAM[i+3] << 24) & 0xFF000000);
 			printf("║");
 			dec2bin(aux);
 			cout << " │ ";
