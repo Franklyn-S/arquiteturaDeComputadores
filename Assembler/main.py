@@ -67,7 +67,7 @@ mnemonics_list = {
     'ifeq': 0x47,
     'if_icmpeq': 0x4B,
     'invokevirtual': 0x55,
-    'ireturn': 0x6,
+    'ireturn': 0x6B,
 }
 
 
