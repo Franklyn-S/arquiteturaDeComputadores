@@ -86,7 +86,7 @@ void ler_registrador(byte ender) {
         case 3: // mbru = mbr com extensão de sinal
         {
             word sinal = mbr >> 7;
-            bB = (sinal) ? 0xFFFFFF0 : 0;
+            bB = (sinal) ? 0xFFFFFF00 : 0;
             bB = bB | mbr;
         }
         					break;
@@ -116,7 +116,7 @@ void ula(byte operacao) {
 	
 	bA = h;
 
-	byte opUla  = (operacao << 2) >> 2;  // Operação da ULA que trabalha com 6 bits
+	byte opUla  = (operacao & 0b111111);  // Operação da ULA que trabalha com 6 bits
 	byte desloc = operacao >> 6;         // Operação do deslocador que trabalha com 2 bits
 
 	switch (opUla) {
@@ -345,7 +345,7 @@ void debug() {
 int main() {
 	
 	carregar_microprograma();
-	carregar_operacao("prog.exe");
+	carregar_operacao("../Assembler/prog.exe");
 	
     while(1) {
 
