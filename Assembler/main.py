@@ -680,7 +680,7 @@ def main():
     # Informa o arquivo a ser lido
     mounter.read_file('prog.asm')
     # E o arquivo a ser escrito
-    mounter.write_file('prog2.exe')
+    mounter.write_file('prog.exe')
 
 if __name__ == '__main__':
     main()
