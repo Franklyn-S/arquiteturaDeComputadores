@@ -8,24 +8,24 @@
 
 loop1:	mov ah, 0
 		int 0x16
-		mov ah, 0x0e
-		int 0x10
-
+		
 		cmp al, 13
 		je print
 
+		mov ah, 0x0e
+		int 0x10
 		push ax
 		
 		jmp loop1	
 
 print:
-		mov al, 10
-		mov ah, 0x0e
+		mov dh, 1; para printar na linha 1
+		mov ah, 0x02
 		int 0x10
-		;mov dh, 1; para printar na linha 1
+
 loop2:
 		pop ax
-		mov ah, 0x0E
+		mov ah, 0x0e
 		int 0x10
 		or al, al
 		jz fim

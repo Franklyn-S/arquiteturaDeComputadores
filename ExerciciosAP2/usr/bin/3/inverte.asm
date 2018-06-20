@@ -4,23 +4,31 @@
 		cli
 
 		push 0; para parar o loop
-		mov dh, 1; para printar na linha 1
+		
 
 loop1:	mov ah, 0
 		int 0x16
+		mov ah, 0x0e
+		int 0x10
+
 		cmp al, 13
 		je print
-		mov ah, 0x02
-		int 0x10
+
 		push ax
+		
 		jmp loop1	
 
 print:
-		pop ax
+		mov al, 10
+		mov ah, 0x0e
 		int 0x10
-		cmp al, al
+loop2:
+		pop ax
+		mov ah, 0x0E
+		int 0x10
+		or al, al
 		jz fim
-		jmp print
+		jmp loop2
 
 fim:	hlt
 
