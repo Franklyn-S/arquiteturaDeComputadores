@@ -24,12 +24,12 @@ loop:	mov ah, 0 ;coloco 0 em "ah" para chamar a int de entrada de teclado(0x16)
 		jmp loop
 
 		 
-ret1:	mov al, [ds:di]
-		dec di
+ret1:	dec di
+		mov al, [ds:di]
+		
 		mov ah, 0x02
 		mov dh, 1
 		int 0x10
-		pop di
 		or di, di
 		jz final
 		jmp ret1
