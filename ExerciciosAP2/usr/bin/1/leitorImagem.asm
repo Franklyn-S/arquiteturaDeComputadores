@@ -7,9 +7,6 @@
 	mov al,0x13
 	int 0x10
 
-	mov ax,0
-	mov ds, ax
-
 	;Leio os 32 setores onde está a imagem
 	int 0x13
 	mov ah,0x02
@@ -28,8 +25,10 @@
 	;cx contém o número de bytes que serão printados
 	mov cx,16000
 view: mov dx,[bx] ;movo para dx o valor que está em bx
+
 	or cx,cx 
 	jz .fim ;verifico se cx é zero e se for vai para o fim
+	
 	mov [es:di],dx ;printo o valor que está em dx
 	inc bx
 	inc di
