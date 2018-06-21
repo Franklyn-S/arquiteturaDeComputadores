@@ -12,15 +12,17 @@
 		mov es, ax
 
 		mov cx, 64000 ;contador do laço
-		mov bx, 0 ; contador do deslocamento de memória no di
+		mov bx, 0 ;contador do deslocamento de memória no di
 
 loop:	
 		mov ah, 0
-		int 0x16
-.loop2:
-
-		
-
+		int 0x16 ;coloca a tecla em al
+.loop2:	
+		mov di, bx
+		mov [es:di], al
+		inc bx
+		dec cx
+		jnz .loop2
 		
 
 		jmp loop
