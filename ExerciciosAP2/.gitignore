@@ -1,0 +1,5 @@
+# Arquivos binários do assembly
+
+*.img
+*.bin
+*.iso
