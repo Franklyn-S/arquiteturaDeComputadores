@@ -6,52 +6,34 @@
 
 	cli
 
-	mov ax, 0x7e00
-	call entrada
-	call saida
-
-fim:
-	hlt
-
+	; Loop que recebe e empilha os valores até a tecla 'enter' ser pressionada
 entrada:
-	push ax
-	push di
-	mov di, ax
-loop:
 	mov ah, 0
 	int 0x16
 	cmp al, 13
-	je retorna
-	mov [ds:di], al
-	inc di
+	je inverter
 	mov ah, 0x0e
 	int 0x10
-	jmp loop
-retorna:
+	push ax
+	jmp entrada
+
+	; Printa '/n/r' e depois entra em um laço que vai desempilhando os valores e mostrando na tela
+inverter:
 	mov ah, 0x0e
+	mov al, 13
 	int 0x10
 	mov al, 10
 	int 0x10
-	mov [ds:di], byte 0
-	pop di
-	pop ax
-	ret
-
-saida:
-	mov si, ax
-	mov ah, 0x0e
-loop2:
-	lodsb
-	or al, al
-	jz retorna2
-	push ax
-	jmp loop2
-retorna2:
+invertendo:
 	pop ax
 	or al, al
 	jz fim
+	mov ah, 0x0e
 	int 0x10
-	jmp retorna2
+	jmp invertendo
+
+fim:
+	hlt
 
 	times 510 - ($-$$) db 0
 	dw 0xaa55

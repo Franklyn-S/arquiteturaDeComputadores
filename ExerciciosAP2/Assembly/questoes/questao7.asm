@@ -13,6 +13,7 @@
 
 	jmp fim
 
+	; A sub-rotina ENTRADA recebe os valores do teclado (número em forma de string) e transforma em inteiro, após isso empilha os valores, separados de acordo com o sistema de numeração decimal (unidade, dezena, centena ...). Depois que os números são recebidos e montados, eles são colocados no endereço 0x7e00 do segmento 0.
 entrada:
 	push ax
 	mov di, ax
@@ -38,6 +39,7 @@ montar:
 	pop ax
 	ret
 
+	; O método de cálculo funciona através de várias divisões e verificações. Iniciamos um iterador no 2 e dividimos o valor por ele. Caso o iterador seja igual ao número isso significa que ele só pode ser primo (divisível por 1 ou por ele mesmo). Caso o resto da divisão do número recebido com o iterador seja igual a 0 então o número não é primo. 
 calcular:
 	push ax
 	mov si, ax
@@ -59,6 +61,7 @@ calculando:
 	inc cx
 	jmp calculando
 
+	; Método que mostra o número com a mensagem que ele é primo
 ehprimo:
 	call mostrar 
 	mov si, msg1
@@ -70,6 +73,7 @@ loop1:
 	jmp loop1
 
 
+	; Método que mostra o número com a mensagem que ele não é primo
 naoprimo:
 	call mostrar 
 	mov si, msg2
@@ -80,7 +84,7 @@ loop2:
 	int 0x10
 	jmp loop2
 
-
+	; Sub-rotina que transforma o número inteiro do endereço 0x7e00 e segmento 0 em string para mostrar na tela. Funciona de forma análoga á sub-rotina ENTRADA.
 mostrar:
 	mov ax, [ds:si]
 	mov bx, 10
