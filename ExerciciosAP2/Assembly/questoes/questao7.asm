@@ -9,7 +9,7 @@
 	mov ax, 0x7e00
 	call entrada
 
-	call mostrar
+	call calcular
 
 	jmp fim
 
@@ -38,7 +38,7 @@ montar:
 	pop ax
 	ret
 
-mostrar:
+calcular:
 	push ax
 	mov si, ax
 	mov ax, [ds:si]
@@ -47,8 +47,6 @@ mostrar:
 calculando:
 	mov dx, 0
 	mov ax, bx
-	;cmp cx, 5
-	;je fim
 
 	idiv cx
 
@@ -62,41 +60,58 @@ calculando:
 	jmp calculando
 
 ehprimo:
-	mov ax, bx 
+	call mostrar 
 	mov si, msg1
-	mov ah, 0x0e
-	int 0x10
 loop1:
 	lodsb
 	or al, al
-	;jz fim
-	ret
+	jz fim
 	int 0x10
 	jmp loop1
 
 
 naoprimo:
-	mov ax, bx 
+	call mostrar 
 	mov si, msg2
-	mov ah, 0x0e
-	int 0x10
 loop2:
 	lodsb
 	or al, al
 	jz fim
-	;ret
 	int 0x10
 	jmp loop2
+
+
+mostrar:
+	mov ax, [ds:si]
+	mov bx, 10
+	mov cx, 0
+empilhando:
+	mov dx, 0
+	idiv bx
+	add dx, 48
+	push dx
+	inc cx
+	or ax, ax
+	jnz empilhando
+mostrando:
+	pop ax
+	mov ah, 0x0e
+	int 0x10
+	dec cx
+	or cx, cx
+	jnz mostrando
+
+	ret
 
 
 fim:
 	hlt
 
 msg1:
-	db " eh primo!"
+	db " eh primo!", 0
 
 msg2:
-	db " nao eh primo!"
+	db " nao eh primo!", 0
 
 	times 510 - ($-$$) db 0
 	dw 0xaa55
