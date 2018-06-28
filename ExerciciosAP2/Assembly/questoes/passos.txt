@@ -1,0 +1,67 @@
+	PASSOS PARA RESOLVER OS PROBLEMAS
+
+1 questão
+	- mudar para o modo grafico
+	- chamar a interrupção de disco para carregar a imagem
+		Registradores
+		ah: ler setores
+		al: quantidade de setores lidos
+		ch: cilindro que será lido
+		dh: cabeçote que será lido
+		cl: setor inicial que será lido
+		bx: endereço de memoria que irá salvar a imagem
+	- mover a imagem para o registrador SI
+	- mover o endereço de memoria de vídeo no modo grafico para bx e depois mover bx para ES
+	- zerar os registradores AX, BX e CX
+	- criar loop que só para quando CS atinge 320x200 (resolução do modo gráfico)
+		No loop:
+		incrementa SI e move para AL
+		incrementa BX e CX
+		compara CX com 320x200 e para se for igual
+
+
+2 questão
+	- chamar a interrupção de disco para carregar a imagem
+		Registradores
+		ah: ler setores
+		al: quantidade de setores lidos
+		ch: cilindro que será lido
+		dh: cabeçote que será lido
+		cl: setor inicial que será lido
+		bx: endereço de memoria que irá salvar o texto
+	- mover o texto para o registrador SI
+	- criar uma label com a matricula
+	- mover a matricula para o registrador DI
+	- criar um loop para mostrar a mensagem decriptada
+		- Serão 3 loops, um que reinicia a matricula, outro que carrega o proximo char da mensagem e o ultimo que pega os numeros da matricula diferente de zero
+		- No terceiro loop, quando o CL for igual a 0 então carrega o terceiro loop novamente até achar um número diferente de 0
+		- Ainda no terceiro loop, quando o numero 10 for achado significa que a matricula acabou, entao ele pula para o primeiro loop que reseta a mensagem e pula novamente para o terceiro loop
+		- É no terceiro loop que ocorre a decriptação 
+
+3 questão
+	- Cria um loop que usa a interrupção do teclado para receber os valores até a tecla 'enter' (13) ser pressionada
+	- Nesse processo as teclas que estão sendo pressionadas estão sendo empilhadas
+	- Printa o /n/r
+	- Cria um loop que vai desempilhando os valores e printado, é dessa forma que o texto será mostrado ao contrário
+
+
+4 questão
+	- inicia o modo gráfico
+	- cria um loop que reinicia todo o processo
+		- Move o endereço de memória de vídeo do modo grafico para o registrador ES
+		- zera os registradores AX e DX
+	- O segundo loop reinicia o registrador CX para 320x200 e zera o registrador BX
+	- o terceiro loop move BX para DI e move DX para [es:di]
+	dai incrementa BX, DX e decrementa CX (até 0 onde o segundo loop será chamado), com o intuito de pintar toda a tela com as paletas de cores
+	logo em seguida incrementa AX e move AX para DX, quando AX é igual 255 significa que o DX ja começou com todas as cores então todo o processo é reiniciado (primeiro loop)
+
+
+5 questão
+
+
+
+6 questão
+
+
+
+7 questão
